@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LeadHunter — Find Business Leads Instantly</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0d0d0d;
+      --surface: #161616;
+      --surface2: #1e1e1e;
+      --border: #2a2a2a;
+      --accent: #6c63ff;
+      --accent2: #a78bfa;
+      --green: #22c55e;
+      --red: #ef4444;
+      --orange: #f97316;
+      --text: #f1f1f1;
+      --muted: #888;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+    }
+
+    /* ── Nav ── */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 40px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      font-size: 22px;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .nav-right { display: flex; gap: 12px; align-items: center; }
+    .btn-ghost {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: border-color 0.2s;
+    }
+    .btn-ghost:hover { border-color: var(--accent); color: var(--accent2); }
+    .btn-primary {
+      background: var(--accent);
+      border: none;
+      color: #fff;
+      padding: 8px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: opacity 0.2s;
+    }
+    .btn-primary:hover { opacity: 0.85; }
+
+    /* ── Hero ── */
+    .hero {
+      text-align: center;
+      padding: 64px 20px 48px;
+    }
+    .hero-badge {
+      display: inline-block;
+      background: rgba(108,99,255,0.15);
+      border: 1px solid rgba(108,99,255,0.3);
+      color: var(--accent2);
+      font-size: 12px;
+      padding: 4px 14px;
+      border-radius: 20px;
+      margin-bottom: 20px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .hero h1 {
+      font-size: clamp(32px, 5vw, 56px);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+    .hero h1 span {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero p {
+      color: var(--muted);
+      font-size: 18px;
+      max-width: 520px;
+      margin: 0 auto 40px;
+      line-height: 1.6;
+    }
+
+    /* ── Search Box ── */
+    .search-card {
+      max-width: 780px;
+      margin: 0 auto;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+    }
+    .search-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 12px;
+      align-items: end;
+    }
+    .input-group { display: flex; flex-direction: column; gap: 6px; }
+    .input-group label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .input-group input, .input-group select {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .input-group input:focus, .input-group select:focus { border-color: var(--accent); }
+    .input-group input::placeholder { color: #555; }
+
+    .btn-search {
+      background: linear-gradient(135deg, var(--accent), #8b5cf6);
+      border: none;
+      color: #fff;
+      padding: 12px 28px;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: transform 0.15s, opacity 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-search:hover { transform: translateY(-1px); opacity: 0.9; }
+    .btn-search:active { transform: translateY(0); }
+
+    .suggestions {
+      margin-top: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .suggestion-label { font-size: 12px; color: var(--muted); align-self: center; }
+    .chip {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: #ccc;
+      font-size: 12px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .chip:hover { border-color: var(--accent); color: var(--accent2); }
+
+    /* ── Slider ── */
+    .slider-row {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .slider-label { font-size: 13px; color: var(--muted); white-space: nowrap; }
+    .slider-value {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--accent2);
+      min-width: 48px;
+      text-align: center;
+    }
+    .slider-wrap { flex: 1; min-width: 180px; position: relative; }
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 4px;
+      background: var(--border);
+      outline: none;
+      cursor: pointer;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      box-shadow: 0 0 8px rgba(108,99,255,0.6);
+      transition: transform 0.15s;
+    }
+    input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+    .slider-ticks {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 6px;
+      font-size: 11px;
+      color: #555;
+    }
+    .plan-tag {
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .tag-free   { background: rgba(136,136,136,0.15); color: #888;  border: 1px solid #444; }
+    .tag-pro    { background: rgba(108,99,255,0.15);  color: var(--accent2); border: 1px solid rgba(108,99,255,0.3); }
+    .tag-agency { background: rgba(249,115,22,0.15);  color: var(--orange);  border: 1px solid rgba(249,115,22,0.3); }
+
+    /* ── Stats bar ── */
+    .stats-bar {
+      max-width: 780px;
+      margin: 20px auto 0;
+      display: flex;
+      gap: 24px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .stat { text-align: center; }
+    .stat-num { font-size: 22px; font-weight: 700; color: var(--accent2); }
+    .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* ── Results section ── */
+    #results-section {
+      max-width: 1600px;
+      margin: 40px auto;
+      padding: 0 20px;
+      display: none;
+    }
+
+    .results-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .results-title { font-size: 18px; font-weight: 600; }
+    .results-title span { color: var(--accent2); }
+    .results-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    .btn-export {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: border-color 0.2s;
+    }
+    .btn-export:hover { border-color: var(--green); color: var(--green); }
+
+    /* Filters */
+    .filters {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .filter-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 6px 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+    .filter-btn.active { border-color: var(--accent); color: var(--accent2); background: rgba(108,99,255,0.1); }
+
+    /* Table */
+    .table-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow-x: auto;
+      position: relative;
+    }
+    .table-wrap::-webkit-scrollbar { height: 6px; }
+    .table-wrap::-webkit-scrollbar-track { background: var(--surface2); border-radius: 4px; }
+    .table-wrap::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
+    .table-outer { position: relative; }
+    table { width: 100%; border-collapse: collapse; }
+    thead { background: var(--surface2); }
+    th {
+      padding: 10px 12px;
+      text-align: left;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    td {
+      padding: 10px 12px;
+      font-size: 13px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      vertical-align: middle;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .badge-green { background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid rgba(34,197,94,0.2); }
+    .badge-red   { background: rgba(239,68,68,0.15);  color: var(--red);   border: 1px solid rgba(239,68,68,0.2); }
+    .badge-orange{ background: rgba(249,115,22,0.15); color: var(--orange); border: 1px solid rgba(249,115,22,0.2); }
+
+    .stars { color: #f59e0b; font-size: 13px; }
+    .biz-name { font-weight: 600; color: var(--text); }
+    .biz-address { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .phone-link, .web-link { color: var(--accent2); text-decoration: none; font-size: 13px; }
+    .phone-link:hover, .web-link:hover { text-decoration: underline; }
+    .email-text { font-size: 13px; color: #aaa; }
+
+    /* Loading */
+    #loading {
+      display: none;
+      text-align: center;
+      padding: 60px 20px;
+    }
+    .spinner {
+      width: 44px; height: 44px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { color: var(--muted); font-size: 15px; }
+    .loading-sub  { color: #555; font-size: 13px; margin-top: 6px; }
+
+    /* Progress bar */
+    .progress-wrap {
+      max-width: 300px;
+      margin: 16px auto 0;
+      background: var(--surface2);
+      border-radius: 10px;
+      height: 6px;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      border-radius: 10px;
+      width: 0%;
+      transition: width 0.3s;
+    }
+
+    /* ── Pricing teaser ── */
+    .pricing-teaser {
+      max-width: 900px;
+      margin: 60px auto;
+      padding: 0 20px;
+      text-align: center;
+    }
+    .pricing-teaser h2 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+    .pricing-teaser p { color: var(--muted); margin-bottom: 32px; }
+    .plans {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+    .plan {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      text-align: left;
+      transition: border-color 0.2s;
+    }
+    .plan:hover { border-color: var(--accent); }
+    .plan.popular { border-color: var(--accent); position: relative; }
+    .plan-popular-badge {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--accent);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 12px;
+      border-radius: 20px;
+    }
+    .plan-name { font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+    .plan-price { font-size: 32px; font-weight: 800; margin: 8px 0 4px; }
+    .plan-price span { font-size: 14px; font-weight: 400; color: var(--muted); }
+    .plan-features { list-style: none; margin-top: 16px; display: flex; flex-direction: column; gap: 8px; }
+    .plan-features li { font-size: 13px; color: #ccc; display: flex; gap: 8px; align-items: flex-start; }
+    .plan-features li::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; }
+
+    footer {
+      text-align: center;
+      padding: 32px;
+      color: var(--muted);
+      font-size: 13px;
+      border-top: 1px solid var(--border);
+      margin-top: 40px;
+    }
+
+    @media (max-width: 600px) {
+      .search-row { grid-template-columns: 1fr; }
+      nav { padding: 12px 20px; }
+      .hero { padding: 40px 20px 32px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav>
+  <div class="logo">⚡ LeadHunter</div>
+  <div class="nav-right">
+    <a href="niches.html" style="color:#a855f7;font-size:14px;text-decoration:none;display:flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid #2a2a3e;border-radius:8px;" onmouseover="this.style.borderColor='#a855f7'" onmouseout="this.style.borderColor='#2a2a3e'">🗺️ Niche & City Explorer</a>
+    <button class="btn-ghost">Log in</button>
+    <button class="btn-primary">Get Started Free</button>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-badge">Global Lead Generation</div>
+  <h1>Find <span>100 Business Leads</span><br>in Any City, Instantly</h1>
+  <p>Search any business type in any city worldwide. Get names, phones, emails, websites, ratings and more — exported in seconds.</p>
+
+  <!-- Search Card -->
+  <div class="search-card">
+    <div class="search-row">
+      <div class="input-group">
+        <label>Business Type</label>
+        <input type="text" id="nicheInput" placeholder="e.g. Plumbers, Dentists, Gyms..." />
+      </div>
+      <div class="input-group">
+        <label>City / Location</label>
+        <input type="text" id="cityInput" placeholder="e.g. London, Tokyo, New York..." />
+      </div>
+      <button class="btn-search" onclick="runSearch()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        Find Leads
+      </button>
+    </div>
+
+    <div class="suggestions">
+      <span class="suggestion-label">Try:</span>
+      <span class="chip" onclick="fillSearch('Plumbers','Sydney')">Plumbers in Sydney</span>
+      <span class="chip" onclick="fillSearch('Dentists','London')">Dentists in London</span>
+      <span class="chip" onclick="fillSearch('Restaurants','Tokyo')">Restaurants in Tokyo</span>
+      <span class="chip" onclick="fillSearch('Gyms','New York')">Gyms in New York</span>
+      <span class="chip" onclick="fillSearch('Electricians','Dubai')">Electricians in Dubai</span>
+      <span class="chip" onclick="fillSearch('Law Firms','Toronto')">Law Firms in Toronto</span>
+    </div>
+
+    <!-- Leads slider -->
+    <div class="slider-row">
+      <div class="slider-label">Leads to find:</div>
+      <div class="slider-value" id="sliderVal">50</div>
+      <div class="slider-wrap">
+        <input type="range" id="leadsSlider" min="10" max="100" step="5" value="50" oninput="updateSlider(this.value)">
+        <div class="slider-ticks">
+          <span>10</span><span>25</span><span>50</span><span>75</span><span>100</span>
+        </div>
+      </div>
+      <span class="plan-tag" id="planTag" style="background:rgba(108,99,255,0.15);color:var(--accent2);border:1px solid rgba(108,99,255,0.3);">Pro</span>
+    </div>
+  </div>
+
+  <div style="margin-top:12px;font-size:13px;" id="searchCounter"></div>
+
+  <div class="stats-bar">
+    <div class="stat"><div class="stat-num">190+</div><div class="stat-label">Countries</div></div>
+    <div class="stat"><div class="stat-num">500+</div><div class="stat-label">Business Niches</div></div>
+    <div class="stat"><div class="stat-num" id="statLeads">50</div><div class="stat-label">Leads Per Search</div></div>
+    <div class="stat"><div class="stat-num">CSV</div><div class="stat-label">Instant Export</div></div>
+  </div>
+</section>
+
+<!-- Loading -->
+<div id="loading">
+  <div class="spinner"></div>
+  <div class="loading-text" id="loadingText">Searching Google Maps...</div>
+  <div class="loading-sub" id="loadingSub">Finding businesses in your area</div>
+  <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+</div>
+
+<!-- Results -->
+<section id="results-section">
+  <div class="results-header">
+    <div class="results-title">Found <span id="resultCount">0</span> leads for <span id="resultQuery">—</span></div>
+    <div class="results-actions">
+      <button class="btn-export" id="exportBtn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export CSV
+      </button>
+      <button class="btn-export" onclick="exportCSV()" style="border-color:#555;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+        Export Excel
+      </button>
+    </div>
+  </div>
+
+  <div class="filters">
+    <span class="filter-label" style="color:var(--muted);font-size:13px;align-self:center;">Filter:</span>
+    <button class="filter-btn active" onclick="setFilter('all', this)">All (<span id="f-all">0</span>)</button>
+    <button class="filter-btn" onclick="setFilter('no-website', this)">No Website (<span id="f-noweb">0</span>)</button>
+    <button class="filter-btn" onclick="setFilter('has-email', this)">Has Email (<span id="f-email">0</span>)</button>
+    <button class="filter-btn" onclick="setFilter('high-rated', this)">4.5+ Stars (<span id="f-rated">0</span>)</button>
+    <button class="filter-btn" onclick="setFilter('new-biz', this)">New Business (<span id="f-new">0</span>)</button>
+    <button class="filter-btn" onclick="setFilter('low-reviews', this)">Low Reviews (<span id="f-lowrev">0</span>)</button>
+  </div>
+
+  <div class="table-outer">
+  <div class="table-wrap" id="tableWrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Business</th>
+          <th>Owner</th>
+          <th>Phone</th>
+          <th>Email</th>
+          <th>Website</th>
+          <th>Socials</th>
+          <th>Rating</th>
+          <th>Reviews</th>
+          <th>In Business</th>
+          <th>Lead Score <span style="font-size:10px;color:var(--accent2);font-weight:400;text-transform:none;letter-spacing:0;">— click for AI analysis</span></th>
+        </tr>
+      </thead>
+      <tbody id="resultsBody"></tbody>
+    </table>
+  </div>
+  </div>
+</section>
+
+<!-- Pricing Teaser -->
+<section class="pricing-teaser">
+  <h2>Simple Pricing</h2>
+  <p>Start free, scale as you grow</p>
+  <div class="plans">
+    <div class="plan">
+      <div class="plan-name">Free</div>
+      <div class="plan-price">$0 <span>/mo</span></div>
+      <ul class="plan-features">
+        <li>10 searches per month</li>
+        <li>25 leads per search</li>
+        <li>CSV export</li>
+        <li>All countries & niches</li>
+      </ul>
+    </div>
+    <div class="plan popular">
+      <div class="plan-popular-badge">MOST POPULAR</div>
+      <div class="plan-name">Pro</div>
+      <div class="plan-price">$49 <span>/mo</span></div>
+      <ul class="plan-features">
+        <li>Unlimited searches</li>
+        <li>100 leads per search</li>
+        <li>CSV + Excel export</li>
+        <li>Email finder included</li>
+        <li>No website filter</li>
+        <li>Priority support</li>
+      </ul>
+    </div>
+    <div class="plan">
+      <div class="plan-name">Agency</div>
+      <div class="plan-price">$149 <span>/mo</span></div>
+      <ul class="plan-features">
+        <li>Everything in Pro</li>
+        <li>5 team seats</li>
+        <li>Bulk city search</li>
+        <li>API access</li>
+        <li>White-label reports</li>
+        <li>Dedicated support</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- Score Popup -->
+<div id="scorePopup" style="display:none;position:fixed;z-index:998;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;width:320px;box-shadow:0 20px 60px rgba(0,0,0,0.6);">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+    <div style="font-size:15px;font-weight:700;" id="popupBizName">Business Name</div>
+    <button onclick="closeScorePopup()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;line-height:1;">✕</button>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+    <div id="popupScoreCircle" style="width:52px;height:52px;border-radius:50%;border:2px solid #22c55e;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;flex-shrink:0;"></div>
+    <div>
+      <div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">AI Score Explanation</div>
+      <div id="popupScoreLabel" style="font-size:13px;margin-top:4px;line-height:1.5;color:#ccc;"></div>
+    </div>
+  </div>
+
+  <div style="margin-bottom:14px;">
+    <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Competitor Gaps</div>
+    <div id="popupGaps"></div>
+  </div>
+
+  <div id="popupSignalsSection" style="margin-bottom:14px;">
+    <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Intent Signals</div>
+    <div id="popupSignals"></div>
+  </div>
+
+  <div style="background:rgba(108,99,255,0.1);border:1px solid rgba(108,99,255,0.2);border-radius:8px;padding:10px;font-size:12px;color:var(--accent2);">
+    💡 <strong>Outreach tip:</strong> <span id="popupTip"></span>
+  </div>
+</div>
+
+<!-- Upgrade Modal -->
+<div id="upgradeModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:999;display:none;align-items:center;justify-content:center;">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:40px;max-width:440px;width:90%;text-align:center;position:relative;">
+    <div style="font-size:48px;margin-bottom:12px;">🔒</div>
+    <h2 style="font-size:24px;font-weight:800;margin-bottom:8px;">Free Limit Reached</h2>
+    <p style="color:var(--muted);font-size:15px;line-height:1.6;margin-bottom:8px;">You've used all <strong style="color:var(--text);">5 free searches</strong> this month.</p>
+    <p style="color:var(--muted);font-size:14px;margin-bottom:28px;">Upgrade to Pro for unlimited searches, CSV export, and up to 100 leads per search.</p>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+      <button onclick="closeModal()" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted);padding:12px 24px;border-radius:10px;cursor:pointer;font-size:14px;">
+        Wait until next month
+      </button>
+      <button onclick="upgradeToPro()" style="background:linear-gradient(135deg,var(--accent),#8b5cf6);border:none;color:#fff;padding:12px 28px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:700;">
+        Upgrade to Pro — $49/mo
+      </button>
+    </div>
+    <p id="resetTimer" style="margin-top:16px;font-size:12px;color:#555;"></p>
+  </div>
+</div>
+
+<footer>
+  &copy; 2026 LeadHunter &mdash; Find leads anywhere in the world
+</footer>
+
+<script>
+// ── Mock data engine ──────────────────────────────────────────────────────────
+const firstNames = ['James','Sarah','Michael','Emma','David','Lisa','Robert','Anna','John','Maria','Chris','Kate','Daniel','Sophie','Tom','Rachel'];
+const lastNames  = ['Smith','Johnson','Williams','Brown','Jones','Garcia','Miller','Davis','Wilson','Taylor','Anderson','Thomas','Jackson','White','Harris'];
+
+const streetTypes = ['St','Ave','Rd','Blvd','Lane','Dr','Way','Pl','Ct'];
+const streetNames = ['Main','Oak','Park','Cedar','Maple','Pine','Elm','High','Church','King','Queen','Bridge','Station','Market','Hill','River'];
+
+const domains = ['gmail.com','yahoo.com','outlook.com','hotmail.com','icloud.com'];
+
+function rand(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+function seededRand(seed) {
+  let s = seed;
+  return function() {
+    s = (s * 1664525 + 1013904223) & 0xffffffff;
+    return (s >>> 0) / 4294967296;
+  };
+}
+
+function generateBusinessName(niche, city, index, rng) {
+  const templates = [
+    `${rand(lastNames)} & Sons ${niche}`,
+    `${city} ${niche} Co.`,
+    `Premier ${niche}`,
+    `${rand(lastNames)} ${niche} Services`,
+    `${city} ${niche} Experts`,
+    `Pro ${niche} ${city}`,
+    `Elite ${niche}`,
+    `${rand(lastNames)} ${niche}`,
+    `Top ${niche} ${city}`,
+    `${niche} Plus`,
+    `City ${niche}`,
+    `${rand(firstNames)}'s ${niche}`,
+    `Express ${niche}`,
+    `${niche} Masters`,
+    `Quality ${niche} Services`,
+    `The ${niche} Specialists`,
+    `${rand(lastNames)} Bros ${niche}`,
+    `All Star ${niche}`,
+    `Reliable ${niche}`,
+    `${city} Pro ${niche}`,
+  ];
+  return templates[index % templates.length];
+}
+
+function generatePhone(countryCode) {
+  const codes = {
+    'AU': '+61 4', 'US': '+1 ', 'UK': '+44 7', 'CA': '+1 ',
+    'NZ': '+64 2', 'DE': '+49 1', 'FR': '+33 6', 'JP': '+81 9',
+    'default': '+1 '
+  };
+  const prefix = codes[countryCode] || codes.default;
+  return `${prefix}${randInt(100,999)}-${randInt(100,999)}-${randInt(1000,9999)}`;
+}
+
+function generateEmail(bizName, hasEmail) {
+  if (!hasEmail) return null;
+  const slug = bizName.toLowerCase().replace(/[^a-z0-9]/g,'').substring(0, 15);
+  const types = [`info@${slug}.com`, `contact@${slug}.com`, `hello@${slug}.com`, `${rand(firstNames).toLowerCase()}@${rand(domains)}`];
+  return rand(types);
+}
+
+function generateWebsite(bizName, hasWeb) {
+  if (!hasWeb) return null;
+  const slug = bizName.toLowerCase().replace(/[^a-z0-9]/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'').substring(0,25);
+  return `www.${slug}.com`;
+}
+
+function generateAddress(city) {
+  return `${randInt(1,999)} ${rand(streetNames)} ${rand(streetTypes)}, ${city}`;
+}
+
+function generateRating() {
+  const ratings = [3.5, 3.7, 3.8, 4.0, 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8, 4.9, 5.0];
+  const weights = [1,1,2,3,4,5,6,7,8,7,6,5,4,2];
+  let total = weights.reduce((a,b)=>a+b,0), r = Math.random()*total;
+  for (let i=0; i<ratings.length; i++) { r -= weights[i]; if (r<=0) return ratings[i]; }
+  return 4.5;
+}
+
+function generateOwnerName() {
+  return `${rand(firstNames)} ${rand(lastNames)}`;
+}
+
+function generateSocials(hasWeb) {
+  const hasFacebook  = Math.random() > (hasWeb ? 0.3 : 0.5);
+  const hasInstagram = Math.random() > (hasWeb ? 0.4 : 0.65);
+  const hasLinkedin  = Math.random() > 0.7;
+  return { hasFacebook, hasInstagram, hasLinkedin };
+}
+
+function calcLeadScore(l) {
+  let score = 50;
+  if (!l.hasWeb)        score += 20;
+  if (!l.hasEmail)      score += 5;
+  if (l.reviews < 10)   score += 15;
+  if (l.rating < 4.0)   score += 10;
+  if (!l.socials.hasFacebook && !l.socials.hasInstagram) score += 10;
+  if (l.years <= 3)     score -= 5;
+  return Math.min(score, 99);
+}
+
+function generateIntentSignals(l) {
+  const signals = [];
+  if (l.years <= 1)                           signals.push({ icon: '🆕', label: 'Recently opened',     color: '#22c55e' });
+  if (l.rating < 3.8 && l.reviews > 20)      signals.push({ icon: '📉', label: 'Declining reviews',   color: '#ef4444' });
+  if (Math.random() < 0.12)                   signals.push({ icon: '🔄', label: 'New ownership',       color: '#f97316' });
+  if (l.reviews > 200 && l.rating >= 4.7)    signals.push({ icon: '🚀', label: 'Rapid growth',        color: '#a78bfa' });
+  if (!l.hasWeb && l.years > 5)              signals.push({ icon: '⚠️', label: 'Outdated presence',   color: '#f97316' });
+  return signals;
+}
+
+function generateGapAnalysis(l) {
+  const gaps = [];
+  if (!l.hasWeb)                              gaps.push('No website detected');
+  else if (Math.random() > 0.5)              gaps.push('Website not mobile-friendly');
+  if (!l.socials.hasFacebook)                gaps.push('No Facebook page');
+  if (!l.socials.hasInstagram)               gaps.push('No Instagram presence');
+  if (l.reviews < 10)                        gaps.push(`Only ${l.reviews} Google review${l.reviews !== 1 ? 's' : ''}`);
+  if (l.rating < 4.0)                        gaps.push(`Low rating (${l.rating}★)`);
+  if (!l.hasEmail)                            gaps.push('No public email found');
+  if (Math.random() > 0.6)                   gaps.push('Weak local SEO signals');
+  if (Math.random() > 0.7)                   gaps.push('No Google Business photos');
+  return gaps;
+}
+
+function generateScoreExplanation(l) {
+  const reasons = [];
+  if (!l.hasWeb)                             reasons.push('No website — high demand for web services');
+  if (l.reviews < 10)                        reasons.push(`Only ${l.reviews} review${l.reviews !== 1 ? 's' : ''} — reputation management opportunity`);
+  if (l.rating < 4.0)                        reasons.push(`${l.rating}★ rating — below industry average`);
+  if (!l.socials.hasFacebook && !l.socials.hasInstagram) reasons.push('No social media — easy upsell for agencies');
+  if (!l.hasEmail)                            reasons.push('No contact email — disorganised, likely needs help');
+  if (l.years > 8)                           reasons.push(`${l.years} years in business — established, has budget`);
+  if (l.years <= 3)                          reasons.push('New business — may have limited budget');
+  return reasons;
+}
+
+function generateFreshness() {
+  const daysAgo = randInt(0, 29);
+  if (daysAgo === 0) return { label: 'Today',          color: '#22c55e' };
+  if (daysAgo <= 3)  return { label: `${daysAgo}d ago`, color: '#22c55e' };
+  if (daysAgo <= 14) return { label: `${daysAgo}d ago`, color: '#f97316' };
+  return               { label: `${daysAgo}d ago`,      color: '#888' };
+}
+
+function generateLeads(niche, city, count = 100) {
+  const leads = [];
+  const nicheClean = niche.replace(/s$/i,'').trim();
+  for (let i = 0; i < count; i++) {
+    const hasWeb   = Math.random() > 0.35;
+    const hasEmail = Math.random() > 0.4;
+    const yearsAgo = randInt(1, 32);
+    const foundedYear = 2026 - yearsAgo;
+    const bizName = generateBusinessName(nicheClean, city, i, null);
+    const rating  = generateRating();
+    const reviews = randInt(1, 850);
+    const socials = generateSocials(hasWeb);
+    const owner   = Math.random() > 0.35 ? generateOwnerName() : null;
+
+    const lead = {
+      name:    bizName,
+      address: generateAddress(city),
+      phone:   generatePhone('default'),
+      email:   generateEmail(bizName, hasEmail),
+      website: generateWebsite(bizName, hasWeb),
+      rating,
+      reviews,
+      founded: foundedYear,
+      years:   yearsAgo,
+      hasWeb,
+      hasEmail,
+      socials,
+      owner,
+      freshness: generateFreshness(),
+    };
+    lead.score        = calcLeadScore(lead);
+    lead.signals      = generateIntentSignals(lead);
+    lead.gaps         = generateGapAnalysis(lead);
+    lead.explanation  = generateScoreExplanation(lead);
+    leads.push(lead);
+  }
+  // Sort by score descending so best leads appear first
+  return leads.sort((a, b) => b.score - a.score);
+}
+
+// ── Slider ────────────────────────────────────────────────────────────────────
+function updateSlider(val) {
+  val = parseInt(val);
+  document.getElementById('sliderVal').textContent = val;
+  const statLeads = document.getElementById('statLeads');
+  if (statLeads) statLeads.textContent = val;
+
+  const slider = document.getElementById('leadsSlider');
+  const pct = (val - 10) / (100 - 10) * 100;
+  slider.style.background = `linear-gradient(to right, var(--accent) ${pct}%, var(--border) ${pct}%)`;
+
+  const tag = document.getElementById('planTag');
+  if (val <= 25) {
+    tag.textContent = 'Free';
+    tag.className = 'plan-tag tag-free';
+  } else if (val <= 100) {
+    tag.textContent = 'Pro';
+    tag.className = 'plan-tag tag-pro';
+  } else {
+    tag.textContent = 'Agency';
+    tag.className = 'plan-tag tag-agency';
+  }
+}
+// Init slider fill on load
+updateSlider(50);
+
+// ── Free tier ─────────────────────────────────────────────────────────────────
+const FREE_SEARCH_LIMIT = 5;
+
+function getPlan() {
+  return localStorage.getItem('lh_plan') || 'free';
+}
+
+function getSearchCount() {
+  const data = JSON.parse(localStorage.getItem('lh_searches') || '{"count":0,"reset":null}');
+  // Reset if a month has passed
+  if (data.reset && Date.now() > data.reset) {
+    localStorage.setItem('lh_searches', JSON.stringify({ count: 0, reset: null }));
+    return 0;
+  }
+  return data.count;
+}
+
+function incrementSearchCount() {
+  const data = JSON.parse(localStorage.getItem('lh_searches') || '{"count":0,"reset":null}');
+  const reset = data.reset || (Date.now() + 30 * 24 * 60 * 60 * 1000);
+  localStorage.setItem('lh_searches', JSON.stringify({ count: data.count + 1, reset }));
+}
+
+function updateSearchCounter() {
+  const plan = getPlan();
+  const el = document.getElementById('searchCounter');
+  if (!el) return;
+  if (plan === 'pro') {
+    el.innerHTML = `<span style="color:var(--accent2);">✦ Pro — Unlimited searches</span>`;
+  } else {
+    const used = getSearchCount();
+    const left = Math.max(0, FREE_SEARCH_LIMIT - used);
+    el.innerHTML = `<span style="color:${left <= 1 ? 'var(--orange)' : 'var(--muted)'};">${left} of ${FREE_SEARCH_LIMIT} free searches remaining</span>`;
+  }
+}
+
+function showUpgradeModal() {
+  const modal = document.getElementById('upgradeModal');
+  modal.style.display = 'flex';
+  // Show days until reset
+  const data = JSON.parse(localStorage.getItem('lh_searches') || '{}');
+  if (data.reset) {
+    const days = Math.ceil((data.reset - Date.now()) / (1000 * 60 * 60 * 24));
+    document.getElementById('resetTimer').textContent = `Your free searches reset in ${days} day${days !== 1 ? 's' : ''}.`;
+  }
+}
+
+function closeModal() {
+  document.getElementById('upgradeModal').style.display = 'none';
+}
+
+function upgradeToPro() {
+  // In production this would redirect to Stripe
+  localStorage.setItem('lh_plan', 'pro');
+  closeModal();
+  updateSearchCounter();
+  updateExportButton();
+  alert('You\'re now on Pro! (Demo mode — in production this triggers Stripe payment)');
+}
+
+function updateExportButton() {
+  const plan = getPlan();
+  const btn = document.getElementById('exportBtn');
+  if (!btn) return;
+  if (plan === 'free') {
+    btn.innerHTML = `🔒 Export CSV <span style="font-size:11px;color:var(--orange);margin-left:4px;">Pro only</span>`;
+    btn.style.opacity = '0.5';
+    btn.style.cursor = 'not-allowed';
+    btn.onclick = () => showUpgradeModal();
+  } else {
+    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Export CSV`;
+    btn.style.opacity = '1';
+    btn.style.cursor = 'pointer';
+    btn.onclick = exportCSV;
+  }
+}
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let allLeads = [];
+let activeFilter = 'all';
+
+function fillSearch(niche, city) {
+  document.getElementById('nicheInput').value = niche;
+  document.getElementById('cityInput').value  = city;
+}
+
+async function runSearch() {
+  const niche = document.getElementById('nicheInput').value.trim();
+  const city  = document.getElementById('cityInput').value.trim();
+  if (!niche || !city) {
+    alert('Please enter both a business type and a city.');
+    return;
+  }
+
+  // Free tier gate
+  if (getPlan() === 'free' && getSearchCount() >= FREE_SEARCH_LIMIT) {
+    showUpgradeModal();
+    return;
+  }
+  if (getPlan() === 'free') {
+    incrementSearchCount();
+    updateSearchCounter();
+  }
+
+  // Hide results, show loading
+  document.getElementById('results-section').style.display = 'none';
+  const loading = document.getElementById('loading');
+  loading.style.display = 'block';
+  loading.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+  const count = parseInt(document.getElementById('leadsSlider').value);
+
+  const steps = [
+    [15, 'Searching Google Maps...', `Finding ${niche} in ${city}`],
+    [35, 'Scraping business listings...', 'Collecting names, phones & addresses'],
+    [55, 'Looking up websites...', 'Checking which businesses have a web presence'],
+    [72, 'Finding email addresses...', 'Pattern matching & verification'],
+    [88, 'Gathering ratings & reviews...', 'Pulling Google ratings data'],
+    [100, 'Done!', `Found ${count} leads for ${niche} in ${city}`],
+  ];
+
+  for (const [pct, text, sub] of steps) {
+    document.getElementById('loadingText').textContent = text;
+    document.getElementById('loadingSub').textContent  = sub;
+    document.getElementById('progressBar').style.width  = pct + '%';
+    await sleep(420 + Math.random() * 300);
+  }
+
+  await sleep(300);
+  loading.style.display = 'none';
+
+  allLeads = generateLeads(niche, city, count);
+  renderResults(niche, city);
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function setFilter(f, btn) {
+  activeFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTable();
+}
+
+function filteredLeads() {
+  switch(activeFilter) {
+    case 'no-website':  return allLeads.filter(l => !l.hasWeb);
+    case 'has-email':   return allLeads.filter(l => l.hasEmail);
+    case 'high-rated':  return allLeads.filter(l => l.rating >= 4.5);
+    case 'new-biz':     return allLeads.filter(l => l.years <= 3);
+    case 'low-reviews': return allLeads.filter(l => l.reviews < 10);
+    default: return allLeads;
+  }
+}
+
+function renderResults(niche, city) {
+  document.getElementById('resultCount').textContent = allLeads.length;
+  document.getElementById('resultQuery').textContent = `"${niche} in ${city}"`;
+
+  // Filter counts
+  document.getElementById('f-all').textContent    = allLeads.length;
+  document.getElementById('f-noweb').textContent  = allLeads.filter(l=>!l.hasWeb).length;
+  document.getElementById('f-email').textContent  = allLeads.filter(l=>l.hasEmail).length;
+  document.getElementById('f-rated').textContent  = allLeads.filter(l=>l.rating>=4.5).length;
+  document.getElementById('f-new').textContent    = allLeads.filter(l=>l.years<=3).length;
+  document.getElementById('f-lowrev').textContent = allLeads.filter(l=>l.reviews<10).length;
+
+  activeFilter = 'all';
+  document.querySelectorAll('.filter-btn').forEach((b,i)=>{ b.classList.toggle('active', i===0); });
+
+  renderTable();
+  document.getElementById('results-section').style.display = 'block';
+  document.getElementById('results-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function renderTable() {
+  const leads = filteredLeads();
+  const tbody = document.getElementById('resultsBody');
+  tbody.innerHTML = '';
+
+  leads.forEach((l, i) => {
+    const stars = '★'.repeat(Math.floor(l.rating)) + (l.rating % 1 >= 0.5 ? '½' : '');
+    const websiteBadge = l.hasWeb
+      ? `<a href="https://${l.website}" target="_blank" class="web-link">${l.website}</a>`
+      : `<span class="badge badge-red">✕ No Website</span>`;
+    const emailCell = l.email
+      ? `<span class="email-text">${l.email}</span>`
+      : `<span style="color:#555;font-size:12px;">Not found</span>`;
+    const yearsText = l.years === 1 ? '1 year' : `${l.years} years`;
+
+    const fb = l.socials.hasFacebook  ? `<span title="Facebook"  style="color:#4267B2;font-size:15px;">f</span>` : `<span title="No Facebook"  style="color:#333;font-size:15px;">f</span>`;
+    const ig = l.socials.hasInstagram ? `<span title="Instagram" style="color:#E1306C;font-size:15px;">ig</span>` : `<span title="No Instagram" style="color:#333;font-size:15px;">ig</span>`;
+    const li = l.socials.hasLinkedin  ? `<span title="LinkedIn"  style="color:#0077b5;font-size:15px;">in</span>` : `<span title="No LinkedIn"  style="color:#333;font-size:15px;">in</span>`;
+    const socialsCell = `<div style="display:flex;gap:6px;align-items:center;font-weight:700;font-family:monospace;">${fb}${ig}${li}</div>`;
+
+    const reviewsLow = l.reviews < 10;
+    const reviewsCell = reviewsLow
+      ? `<span style="font-weight:700;color:var(--orange);">${l.reviews} <span style="font-size:10px;">LOW</span></span>`
+      : `<span style="font-weight:600;">${l.reviews.toLocaleString()}</span>`;
+
+    const scoreColor = l.score >= 80 ? 'var(--green)' : l.score >= 60 ? 'var(--orange)' : 'var(--muted)';
+    const scoreLabel = l.score >= 80 ? 'Hot' : l.score >= 60 ? 'Warm' : 'Cool';
+    const scoreCell = `
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;" onclick="showScorePopup(${i}, event)" title="Click for AI analysis">
+        <div style="width:40px;height:40px;border-radius:50%;border:2px solid ${scoreColor};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:${scoreColor};transition:transform 0.15s;" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'">${l.score}</div>
+        <span style="font-size:10px;color:${scoreColor};font-weight:600;">${scoreLabel}</span>
+      </div>`;
+
+    const signalsCell = l.signals.length
+      ? l.signals.map(s => `<span title="${s.label}" style="font-size:16px;cursor:default;">${s.icon}</span>`).join(' ')
+      : `<span style="color:#555;font-size:12px;">—</span>`;
+
+    const freshnessCell = `<span style="font-size:12px;color:${l.freshness.color};font-weight:600;">${l.freshness.label}</span>`;
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="color:var(--muted);font-size:13px;">${i+1}</td>
+      <td>
+        <div class="biz-name">${l.name}</div>
+        <div class="biz-address">${l.address}</div>
+      </td>
+      <td style="white-space:nowrap;">${l.owner ? `<span style="font-size:13px;color:#ccc;">${l.owner}</span>` : `<span style="color:#555;font-size:12px;">Not found</span>`}</td>
+      <td><a href="tel:${l.phone}" class="phone-link">${l.phone}</a></td>
+      <td>${emailCell}</td>
+      <td>${websiteBadge}</td>
+      <td>${socialsCell}</td>
+      <td>
+        <span class="stars">${stars}</span>
+        <span style="font-size:12px;color:var(--muted);margin-left:4px;">${l.rating}</span>
+      </td>
+      <td>${reviewsCell}</td>
+      <td>
+        <span style="font-size:13px;">${yearsText}</span>
+        <div style="font-size:11px;color:var(--muted);">Since ${l.founded}</div>
+      </td>
+      <td>${scoreCell}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+document.getElementById('tableWrap').addEventListener('scroll', function() {
+  if (this.scrollLeft > 20) this.closest('.table-outer').classList.add('scrolled');
+});
+
+function exportCSV() {
+  const leads = filteredLeads();
+  const rows = [['#','Business Name','Address','Phone','Email','Website','Rating','Reviews','Years in Business','Founded','Has Website']];
+  leads.forEach((l,i) => {
+    rows.push([
+      i+1, l.name, l.address, l.phone,
+      l.email || '', l.website || '',
+      l.rating, l.reviews, l.years, l.founded,
+      l.hasWeb ? 'Yes' : 'No'
+    ]);
+  });
+  const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a'); a.href = url;
+  a.download = `leads-export.csv`; a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ── Score popup ───────────────────────────────────────────────────────────────
+function showScorePopup(index, event) {
+  event.stopPropagation();
+  const leads = filteredLeads();
+  const l = leads[index];
+  const popup = document.getElementById('scorePopup');
+  const scoreColor = l.score >= 80 ? '#22c55e' : l.score >= 60 ? '#f97316' : '#888';
+
+  document.getElementById('popupBizName').textContent = l.name;
+
+  const circle = document.getElementById('popupScoreCircle');
+  circle.textContent = l.score;
+  circle.style.borderColor = scoreColor;
+  circle.style.color = scoreColor;
+
+  document.getElementById('popupScoreLabel').innerHTML = l.explanation.length
+    ? l.explanation.map(r => `• ${r}`).join('<br>')
+    : 'No major gaps detected — this is a competitive lead.';
+
+  const gapsEl = document.getElementById('popupGaps');
+  gapsEl.innerHTML = l.gaps.length
+    ? l.gaps.map(g => `<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;font-size:12px;color:#ccc;"><span style="color:#ef4444;font-weight:700;">✕</span>${g}</div>`).join('')
+    : '<div style="font-size:12px;color:#555;">No major gaps found.</div>';
+
+  const signalsEl = document.getElementById('popupSignals');
+  const sigSec = document.getElementById('popupSignalsSection');
+  if (l.signals.length) {
+    sigSec.style.display = 'block';
+    signalsEl.innerHTML = l.signals.map(s => `<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:12px;"><span>${s.icon}</span><span style="color:${s.color};font-weight:600;">${s.label}</span></div>`).join('');
+  } else {
+    sigSec.style.display = 'none';
+  }
+
+  const tips = [
+    `Mention that ${l.reviews < 10 ? 'they only have ' + l.reviews + ' reviews' : 'their rating could be improved'} — offer reputation help.`,
+    `Lead with their missing ${!l.hasWeb ? 'website' : 'social media'} — it's their biggest gap.`,
+    `Address them by name${l.owner ? ` (${l.owner.split(' ')[0]})` : ''} in your outreach for a 3× higher reply rate.`,
+    `They've been in business ${l.years} years — frame your pitch around growth, not survival.`,
+  ];
+  document.getElementById('popupTip').textContent = rand(tips);
+
+  // Position near click
+  popup.style.display = 'block';
+  const x = Math.min(event.clientX + 10, window.innerWidth - 340);
+  const y = Math.min(event.clientY + 10, window.innerHeight - 420);
+  popup.style.left = x + 'px';
+  popup.style.top  = y + 'px';
+  popup.style.position = 'fixed';
+}
+
+function closeScorePopup() {
+  document.getElementById('scorePopup').style.display = 'none';
+}
+
+document.addEventListener('click', function(e) {
+  const popup = document.getElementById('scorePopup');
+  if (popup.style.display === 'block' && !popup.contains(e.target)) closeScorePopup();
+});
+
+// Init after all functions are defined
+updateSearchCounter();
+updateExportButton();
+</script>
+</body>
+</html>

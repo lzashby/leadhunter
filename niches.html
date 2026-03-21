@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Niche & City Explorer — LeadHunter</title>
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --card: #13131a;
+      --border: #1e1e2e;
+      --accent: #7c3aed;
+      --accent2: #a855f7;
+      --green: #22c55e;
+      --orange: #f97316;
+      --text: #e2e8f0;
+      --muted: #64748b;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; min-height: 100vh; }
+
+    /* NAV */
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 40px; border-bottom: 1px solid var(--border);
+      background: rgba(10,10,15,0.95); position: sticky; top: 0; z-index: 100;
+    }
+    .nav-logo { font-size: 20px; font-weight: 800; color: var(--accent2); text-decoration: none; }
+    .nav-links { display: flex; gap: 12px; align-items: center; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: 14px; }
+    .nav-links a:hover { color: var(--text); }
+    .btn-nav {
+      background: var(--accent); color: #fff; border: none; padding: 8px 18px;
+      border-radius: 8px; font-size: 14px; cursor: pointer; text-decoration: none;
+    }
+
+    /* LOCK SCREEN */
+    #lockScreen {
+      display: none; flex-direction: column; align-items: center; justify-content: center;
+      min-height: 70vh; text-align: center; padding: 40px;
+    }
+    .lock-icon { font-size: 64px; margin-bottom: 24px; }
+    .lock-title { font-size: 32px; font-weight: 800; margin-bottom: 12px; }
+    .lock-title span { color: var(--accent2); }
+    .lock-sub { color: var(--muted); font-size: 16px; max-width: 480px; margin-bottom: 32px; line-height: 1.6; }
+    .lock-features { display: flex; flex-direction: column; gap: 10px; margin-bottom: 32px; text-align: left; }
+    .lock-feature { display: flex; align-items: center; gap: 10px; font-size: 15px; color: var(--text); }
+    .lock-feature span:first-child { color: var(--green); font-size: 18px; }
+    .btn-unlock {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff; border: none; padding: 14px 36px; border-radius: 10px;
+      font-size: 16px; font-weight: 700; cursor: pointer; text-decoration: none;
+      display: inline-block;
+    }
+    .btn-unlock:hover { opacity: 0.9; }
+    .lock-note { margin-top: 14px; font-size: 13px; color: var(--muted); }
+
+    /* MAIN CONTENT */
+    #mainContent { display: none; padding: 40px; max-width: 1400px; margin: 0 auto; }
+
+    .page-header { margin-bottom: 32px; }
+    .page-header h1 { font-size: 28px; font-weight: 800; margin-bottom: 8px; }
+    .page-header h1 span { color: var(--accent2); }
+    .page-header p { color: var(--muted); font-size: 15px; }
+
+    .badge-pro {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff; font-size: 11px; font-weight: 700; padding: 4px 10px;
+      border-radius: 20px; margin-left: 10px; vertical-align: middle; letter-spacing: 0.5px;
+    }
+
+    /* STATS BAR */
+    .stats-bar {
+      display: flex; gap: 24px; margin-bottom: 32px; flex-wrap: wrap;
+    }
+    .stat-pill {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 10px; padding: 12px 20px; display: flex; align-items: center; gap: 10px;
+    }
+    .stat-pill .num { font-size: 22px; font-weight: 800; color: var(--accent2); }
+    .stat-pill .lbl { font-size: 13px; color: var(--muted); }
+
+    /* SEARCH BAR */
+    .search-bar {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 20px 24px; margin-bottom: 32px; display: flex; gap: 12px; align-items: center;
+      flex-wrap: wrap;
+    }
+    .search-bar input {
+      flex: 1; min-width: 200px; background: var(--bg); border: 1px solid var(--border);
+      border-radius: 8px; padding: 10px 14px; color: var(--text); font-size: 14px; outline: none;
+    }
+    .search-bar input:focus { border-color: var(--accent); }
+    .search-bar input::placeholder { color: var(--muted); }
+    .search-bar label { font-size: 13px; color: var(--muted); white-space: nowrap; }
+    .result-count { font-size: 13px; color: var(--muted); margin-left: auto; white-space: nowrap; }
+
+    /* GRID */
+    .explorer-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+    }
+    @media (max-width: 768px) { .explorer-grid { grid-template-columns: 1fr; } }
+
+    .explorer-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 16px 20px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .card-header h2 { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .card-count {
+      background: var(--bg); border: 1px solid var(--border);
+      color: var(--muted); font-size: 12px; padding: 3px 10px; border-radius: 20px;
+    }
+    .list-container { padding: 8px 0; max-height: 600px; overflow-y: auto; }
+    .list-container::-webkit-scrollbar { width: 4px; }
+    .list-container::-webkit-scrollbar-track { background: transparent; }
+    .list-container::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    .category-label {
+      padding: 8px 20px 4px; font-size: 10px; font-weight: 700;
+      color: var(--accent2); letter-spacing: 1px; text-transform: uppercase;
+    }
+    .list-item {
+      padding: 9px 20px; font-size: 14px; color: var(--text);
+      display: flex; align-items: center; gap: 10px; cursor: pointer;
+      transition: background 0.15s;
+    }
+    .list-item:hover { background: rgba(124,58,237,0.1); }
+    .list-item .item-icon { font-size: 16px; width: 22px; text-align: center; }
+    .list-item .item-name { flex: 1; }
+    .list-item .item-copy {
+      opacity: 0; font-size: 11px; color: var(--accent2); transition: opacity 0.15s;
+    }
+    .list-item:hover .item-copy { opacity: 1; }
+    .list-item.copied { background: rgba(34,197,94,0.1); }
+
+    /* COMBO GENERATOR */
+    .combo-section {
+      margin-top: 32px; background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 24px;
+    }
+    .combo-section h2 { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+    .combo-section p { color: var(--muted); font-size: 14px; margin-bottom: 20px; }
+    .combo-controls { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+    .combo-select {
+      background: var(--bg); border: 1px solid var(--border); color: var(--text);
+      padding: 10px 14px; border-radius: 8px; font-size: 14px; outline: none; cursor: pointer;
+    }
+    .combo-select:focus { border-color: var(--accent); }
+    .btn-generate {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff; border: none; padding: 10px 24px; border-radius: 8px;
+      font-size: 14px; font-weight: 700; cursor: pointer;
+    }
+    .btn-generate:hover { opacity: 0.9; }
+    .combo-results { display: flex; flex-wrap: wrap; gap: 8px; }
+    .combo-tag {
+      background: var(--bg); border: 1px solid var(--border);
+      color: var(--text); font-size: 13px; padding: 6px 12px; border-radius: 8px;
+      cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 6px;
+    }
+    .combo-tag:hover { border-color: var(--accent2); color: var(--accent2); }
+    .combo-tag .go { font-size: 11px; color: var(--muted); }
+
+    /* TOAST */
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      background: var(--green); color: #fff; padding: 10px 20px; border-radius: 8px;
+      font-size: 14px; font-weight: 600; opacity: 0; transition: opacity 0.3s; z-index: 999;
+      pointer-events: none;
+    }
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="homepage.html">⚡ LeadHunter</a>
+  <div class="nav-links">
+    <a href="index.html">App</a>
+<a class="btn-nav" href="homepage.html#pricing">Upgrade</a>
+  </div>
+</nav>
+
+<!-- LOCK SCREEN -->
+<div id="lockScreen">
+  <div class="lock-icon">🔒</div>
+  <div class="lock-title">Pro Feature — <span>Unlock the Explorer</span></div>
+  <div class="lock-sub">The Niche & City Explorer is exclusive to Pro and Agency members. Get instant access to 500+ cities and 200+ niches with search combos.</div>
+  <div class="lock-features">
+    <div class="lock-feature"><span>✓</span> 200+ business niches across every industry</div>
+    <div class="lock-feature"><span>✓</span> 500+ cities worldwide — US, UK, AU, EU & more</div>
+    <div class="lock-feature"><span>✓</span> One-click copy any niche or city into search</div>
+    <div class="lock-feature"><span>✓</span> Combo generator — mix any niche with any city instantly</div>
+  </div>
+  <a class="btn-unlock" href="homepage.html#pricing">Unlock with Pro — $49/mo</a>
+  <div class="lock-note">Already a member? <a href="#" onclick="demoPro()" style="color:var(--accent2)">Click here to sign in</a></div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div id="mainContent">
+  <div class="page-header">
+    <h1>Niche & City Explorer <span class="badge-pro">PRO</span></h1>
+    <p>Browse 200+ niches and 500+ cities. Click any item to copy it — then paste it straight into your search.</p>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat-pill"><div class="num">200+</div><div class="lbl">Business Niches</div></div>
+    <div class="stat-pill"><div class="num">500+</div><div class="lbl">Cities Worldwide</div></div>
+    <div class="stat-pill"><div class="num">100k+</div><div class="lbl">Possible Combinations</div></div>
+  </div>
+
+
+  <div class="explorer-grid">
+    <!-- NICHES -->
+    <div class="explorer-card">
+      <div class="card-header">
+        <h2>🏢 Business Niches</h2>
+        <span class="card-count" id="nicheCount">200 niches</span>
+      </div>
+      <div class="list-container" id="nicheList"></div>
+    </div>
+
+    <!-- CITIES -->
+    <div class="explorer-card">
+      <div class="card-header">
+        <h2>🌍 Cities Worldwide</h2>
+        <span class="card-count" id="cityCount">500 cities</span>
+      </div>
+      <div class="list-container" id="cityList"></div>
+    </div>
+  </div>
+
+  <!-- COMBO GENERATOR -->
+  <div class="combo-section">
+    <h2>⚡ Combo Generator</h2>
+    <p>Pick a niche and a region to instantly generate ready-to-search combinations.</p>
+    <div class="combo-controls">
+      <select class="combo-select" id="comboNiche">
+        <option value="">Select a niche...</option>
+      </select>
+      <select class="combo-select" id="comboRegion">
+        <option value="all">All regions</option>
+        <option value="usa">🇺🇸 United States</option>
+        <option value="uk">🇬🇧 United Kingdom</option>
+        <option value="australia">🇦🇺 Australia</option>
+        <option value="canada">🇨🇦 Canada</option>
+        <option value="europe">🇪🇺 Europe</option>
+        <option value="asia">🌏 Asia</option>
+        <option value="middleeast">🌍 Middle East</option>
+      </select>
+      <button class="btn-generate" onclick="generateCombos()">Generate Combos</button>
+    </div>
+    <div class="combo-results" id="comboResults">
+      <div style="color:var(--muted);font-size:14px;">Select a niche and region above to generate search combos.</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">Copied to clipboard!</div>
+
+<script>
+  const NICHES = {
+    'Home Services': [
+      { icon: '🔧', name: 'Plumbers' },
+      { icon: '⚡', name: 'Electricians' },
+      { icon: '🏠', name: 'Roofers' },
+      { icon: '🧹', name: 'House Cleaners' },
+      { icon: '🌿', name: 'Landscapers' },
+      { icon: '🪟', name: 'Window Cleaners' },
+      { icon: '❄️', name: 'HVAC Technicians' },
+      { icon: '🔨', name: 'Carpenters' },
+      { icon: '🎨', name: 'Painters' },
+      { icon: '🛁', name: 'Bathroom Remodelers' },
+      { icon: '🍳', name: 'Kitchen Remodelers' },
+      { icon: '🚪', name: 'Garage Door Repair' },
+      { icon: '🌊', name: 'Pool Cleaners' },
+      { icon: '🐜', name: 'Pest Control' },
+      { icon: '🔒', name: 'Locksmiths' },
+      { icon: '🏗️', name: 'General Contractors' },
+      { icon: '🧱', name: 'Bricklayers' },
+      { icon: '🪴', name: 'Garden Designers' },
+      { icon: '🔥', name: 'Fireplace Installers' },
+      { icon: '💧', name: 'Water Damage Repair' },
+    ],
+    'Health & Wellness': [
+      { icon: '🦷', name: 'Dentists' },
+      { icon: '👁️', name: 'Optometrists' },
+      { icon: '🧘', name: 'Yoga Studios' },
+      { icon: '💪', name: 'Gyms & Fitness Centres' },
+      { icon: '🏃', name: 'Personal Trainers' },
+      { icon: '💆', name: 'Massage Therapists' },
+      { icon: '🦴', name: 'Chiropractors' },
+      { icon: '🏥', name: 'Physiotherapists' },
+      { icon: '🧠', name: 'Psychologists' },
+      { icon: '💊', name: 'Pharmacies' },
+      { icon: '🐾', name: 'Veterinarians' },
+      { icon: '🌿', name: 'Naturopaths' },
+      { icon: '👂', name: 'Audiologists' },
+      { icon: '🩺', name: 'General Practitioners' },
+      { icon: '💉', name: 'Skin Clinics' },
+      { icon: '🏋️', name: 'Pilates Studios' },
+      { icon: '🎯', name: 'Nutritionists' },
+      { icon: '🦶', name: 'Podiatrists' },
+      { icon: '🧬', name: 'Pathology Labs' },
+      { icon: '😴', name: 'Sleep Clinics' },
+    ],
+    'Legal & Finance': [
+      { icon: '⚖️', name: 'Lawyers' },
+      { icon: '📊', name: 'Accountants' },
+      { icon: '🏦', name: 'Mortgage Brokers' },
+      { icon: '📈', name: 'Financial Advisors' },
+      { icon: '🧾', name: 'Tax Agents' },
+      { icon: '🏢', name: 'Real Estate Agents' },
+      { icon: '📋', name: 'Conveyancers' },
+      { icon: '🛡️', name: 'Insurance Brokers' },
+      { icon: '💼', name: 'Business Consultants' },
+      { icon: '📑', name: 'Bookkeepers' },
+      { icon: '🔍', name: 'Private Investigators' },
+      { icon: '🏛️', name: 'Family Lawyers' },
+      { icon: '🚗', name: 'Traffic Lawyers' },
+      { icon: '📝', name: 'Will & Estate Lawyers' },
+      { icon: '💰', name: 'Debt Collection Agencies' },
+    ],
+    'Food & Hospitality': [
+      { icon: '🍕', name: 'Pizza Restaurants' },
+      { icon: '☕', name: 'Cafes & Coffee Shops' },
+      { icon: '🍺', name: 'Bars & Pubs' },
+      { icon: '🍣', name: 'Sushi Restaurants' },
+      { icon: '🍔', name: 'Burger Restaurants' },
+      { icon: '🥗', name: 'Salad Bars' },
+      { icon: '🍜', name: 'Asian Restaurants' },
+      { icon: '🍷', name: 'Wine Bars' },
+      { icon: '🧁', name: 'Bakeries & Cake Shops' },
+      { icon: '🏨', name: 'Hotels & Motels' },
+      { icon: '🍦', name: 'Ice Cream Shops' },
+      { icon: '🥩', name: 'Steakhouses' },
+      { icon: '🌮', name: 'Mexican Restaurants' },
+      { icon: '🍗', name: 'Fried Chicken Shops' },
+      { icon: '🎂', name: 'Wedding Caterers' },
+    ],
+    'Automotive': [
+      { icon: '🔧', name: 'Mechanics' },
+      { icon: '✨', name: 'Car Detailers' },
+      { icon: '🚗', name: 'Car Dealerships' },
+      { icon: '🏎️', name: 'Panel Beaters' },
+      { icon: '🛞', name: 'Tyre Shops' },
+      { icon: '🪟', name: 'Windscreen Repair' },
+      { icon: '🚙', name: 'Car Rental Companies' },
+      { icon: '🚕', name: 'Driving Schools' },
+      { icon: '⛽', name: 'Service Stations' },
+      { icon: '🚐', name: 'Truck Repair' },
+      { icon: '🏍️', name: 'Motorcycle Shops' },
+      { icon: '🔌', name: 'EV Charger Installers' },
+      { icon: '🎨', name: 'Car Spray Painters' },
+      { icon: '🔈', name: 'Car Audio Installers' },
+    ],
+    'Beauty & Personal Care': [
+      { icon: '💇', name: 'Hair Salons' },
+      { icon: '💅', name: 'Nail Salons' },
+      { icon: '🧖', name: 'Day Spas' },
+      { icon: '✂️', name: 'Barber Shops' },
+      { icon: '👄', name: 'Cosmetic Tattoo Artists' },
+      { icon: '🌟', name: 'Beauty Therapists' },
+      { icon: '💆', name: 'Eyebrow Threading' },
+      { icon: '🦱', name: 'Hair Extension Specialists' },
+      { icon: '🧴', name: 'Skin Care Clinics' },
+      { icon: '💃', name: 'Tanning Salons' },
+      { icon: '👰', name: 'Bridal Makeup Artists' },
+      { icon: '💡', name: 'Laser Hair Removal' },
+    ],
+    'Education & Childcare': [
+      { icon: '🏫', name: 'Private Schools' },
+      { icon: '📚', name: 'Tutoring Centres' },
+      { icon: '👶', name: 'Childcare Centres' },
+      { icon: '🎓', name: 'Driving Schools' },
+      { icon: '🎸', name: 'Music Schools' },
+      { icon: '🖥️', name: 'Coding Bootcamps' },
+      { icon: '🌍', name: 'Language Schools' },
+      { icon: '🎨', name: 'Art Schools' },
+      { icon: '🏊', name: 'Swimming Schools' },
+      { icon: '⚽', name: 'Sports Academies' },
+      { icon: '📐', name: 'Maths Tutors' },
+      { icon: '🔬', name: 'Science Tutors' },
+    ],
+    'Trades & Construction': [
+      { icon: '🏗️', name: 'Builders' },
+      { icon: '🪚', name: 'Cabinet Makers' },
+      { icon: '🔩', name: 'Welders' },
+      { icon: '🛁', name: 'Tilers' },
+      { icon: '🪜', name: 'Scaffold Companies' },
+      { icon: '🌊', name: 'Pool Builders' },
+      { icon: '🏠', name: 'Home Builders' },
+      { icon: '🔌', name: 'Solar Installers' },
+      { icon: '📡', name: 'Antenna Installers' },
+      { icon: '🌿', name: 'Irrigation Companies' },
+      { icon: '🪟', name: 'Glaziers' },
+      { icon: '🔥', name: 'Gas Fitters' },
+    ],
+    'Technology & Digital': [
+      { icon: '💻', name: 'IT Support Companies' },
+      { icon: '🌐', name: 'Web Design Agencies' },
+      { icon: '📱', name: 'App Developers' },
+      { icon: '📸', name: 'Photographers' },
+      { icon: '🎥', name: 'Videographers' },
+      { icon: '📣', name: 'Marketing Agencies' },
+      { icon: '🔍', name: 'SEO Agencies' },
+      { icon: '📊', name: 'Social Media Agencies' },
+      { icon: '🖨️', name: 'Print Shops' },
+      { icon: '🔧', name: 'Phone Repair Shops' },
+      { icon: '🖥️', name: 'Computer Repair Shops' },
+      { icon: '📷', name: 'Drone Photographers' },
+    ],
+    'Events & Entertainment': [
+      { icon: '📸', name: 'Wedding Photographers' },
+      { icon: '🎪', name: 'Event Planners' },
+      { icon: '🎤', name: 'DJs' },
+      { icon: '🌸', name: 'Florists' },
+      { icon: '🎠', name: 'Party Hire Companies' },
+      { icon: '🎭', name: 'Entertainment Agencies' },
+      { icon: '🎈', name: 'Kids Party Entertainers' },
+      { icon: '🍽️', name: 'Wedding Venues' },
+      { icon: '📹', name: 'Wedding Videographers' },
+      { icon: '🎶', name: 'Live Music Bands' },
+      { icon: '🎪', name: 'Escape Rooms' },
+    ],
+    'Pets & Animals': [
+      { icon: '🐾', name: 'Pet Groomers' },
+      { icon: '🐕', name: 'Dog Trainers' },
+      { icon: '🏠', name: 'Pet Boarding' },
+      { icon: '🐈', name: 'Cat Sitters' },
+      { icon: '🦮', name: 'Dog Walkers' },
+      { icon: '🐟', name: 'Aquarium Shops' },
+      { icon: '🐾', name: 'Pet Shops' },
+      { icon: '🐇', name: 'Exotic Animal Vets' },
+    ],
+    'Moving & Storage': [
+      { icon: '🚚', name: 'Removalists' },
+      { icon: '📦', name: 'Storage Facilities' },
+      { icon: '🚛', name: 'Freight Companies' },
+      { icon: '✈️', name: 'International Movers' },
+      { icon: '🏢', name: 'Office Movers' },
+      { icon: '🛻', name: 'Courier Services' },
+    ],
+  };
+
+  const CITIES = {
+    '🇺🇸 United States': [
+      'New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix', 'Philadelphia',
+      'San Antonio', 'San Diego', 'Dallas', 'San Jose', 'Austin', 'Jacksonville',
+      'Fort Worth', 'Columbus', 'Charlotte', 'Indianapolis', 'San Francisco',
+      'Seattle', 'Denver', 'Nashville', 'Oklahoma City', 'El Paso', 'Boston',
+      'Las Vegas', 'Portland', 'Memphis', 'Louisville', 'Baltimore', 'Milwaukee',
+      'Albuquerque', 'Tucson', 'Fresno', 'Sacramento', 'Mesa', 'Kansas City',
+      'Atlanta', 'Miami', 'Tampa', 'Orlando', 'Minneapolis', 'Cleveland',
+      'Pittsburgh', 'Raleigh', 'Virginia Beach', 'Omaha', 'Colorado Springs',
+      'Honolulu', 'Detroit', 'Salt Lake City', 'St. Louis',
+    ],
+    '🇬🇧 United Kingdom': [
+      'London', 'Birmingham', 'Manchester', 'Leeds', 'Glasgow', 'Sheffield',
+      'Bradford', 'Edinburgh', 'Liverpool', 'Bristol', 'Cardiff', 'Belfast',
+      'Leicester', 'Wakefield', 'Coventry', 'Nottingham', 'Newcastle', 'Brighton',
+      'Hull', 'Plymouth', 'Stoke-on-Trent', 'Wolverhampton', 'Derby', 'Swansea',
+      'Southampton', 'Reading', 'Northampton', 'Oxford', 'Cambridge', 'Exeter',
+    ],
+    '🇦🇺 Australia': [
+      'Sydney', 'Melbourne', 'Brisbane', 'Perth', 'Adelaide', 'Gold Coast',
+      'Newcastle', 'Canberra', 'Sunshine Coast', 'Wollongong', 'Hobart',
+      'Geelong', 'Townsville', 'Cairns', 'Darwin', 'Toowoomba', 'Ballarat',
+      'Bendigo', 'Launceston', 'Mackay', 'Rockingham', 'Mandurah',
+      'Bunbury', 'Bundaberg', 'Hervey Bay', 'Wagga Wagga', 'Albury',
+    ],
+    '🇨🇦 Canada': [
+      'Toronto', 'Montreal', 'Vancouver', 'Calgary', 'Edmonton', 'Ottawa',
+      'Winnipeg', 'Quebec City', 'Hamilton', 'Kitchener', 'London', 'Victoria',
+      'Halifax', 'Oshawa', 'Windsor', 'Saskatoon', 'Regina', 'Barrie',
+      'Kelowna', 'Abbotsford', 'Sherbrooke', 'Guelph', 'Kingston',
+    ],
+    '🇩🇪 Germany': [
+      'Berlin', 'Hamburg', 'Munich', 'Cologne', 'Frankfurt', 'Stuttgart',
+      'Düsseldorf', 'Leipzig', 'Dortmund', 'Essen', 'Bremen', 'Dresden',
+      'Hanover', 'Nuremberg', 'Duisburg', 'Bochum', 'Wuppertal', 'Bielefeld',
+    ],
+    '🇫🇷 France': [
+      'Paris', 'Marseille', 'Lyon', 'Toulouse', 'Nice', 'Nantes', 'Strasbourg',
+      'Montpellier', 'Bordeaux', 'Lille', 'Rennes', 'Reims', 'Saint-Étienne',
+    ],
+    '🇪🇸 Spain': [
+      'Madrid', 'Barcelona', 'Valencia', 'Seville', 'Zaragoza', 'Málaga',
+      'Murcia', 'Palma', 'Las Palmas', 'Bilbao', 'Alicante', 'Córdoba',
+    ],
+    '🇮🇹 Italy': [
+      'Rome', 'Milan', 'Naples', 'Turin', 'Palermo', 'Genoa', 'Bologna',
+      'Florence', 'Catania', 'Bari', 'Venice', 'Verona', 'Messina',
+    ],
+    '🇳🇱 Netherlands': [
+      'Amsterdam', 'Rotterdam', 'The Hague', 'Utrecht', 'Eindhoven',
+      'Tilburg', 'Groningen', 'Almere', 'Breda', 'Nijmegen',
+    ],
+    '🇦🇪 UAE': [
+      'Dubai', 'Abu Dhabi', 'Sharjah', 'Ajman', 'Ras Al Khaimah', 'Fujairah',
+    ],
+    '🇸🇬 Singapore': ['Singapore'],
+    '🇭🇰 Hong Kong': ['Hong Kong'],
+    '🇯🇵 Japan': [
+      'Tokyo', 'Osaka', 'Yokohama', 'Nagoya', 'Sapporo', 'Fukuoka',
+      'Kobe', 'Kyoto', 'Kawasaki', 'Hiroshima',
+    ],
+    '🇮🇳 India': [
+      'Mumbai', 'Delhi', 'Bangalore', 'Hyderabad', 'Chennai', 'Kolkata',
+      'Pune', 'Ahmedabad', 'Jaipur', 'Surat', 'Lucknow', 'Kanpur',
+    ],
+    '🇿🇦 South Africa': [
+      'Johannesburg', 'Cape Town', 'Durban', 'Pretoria', 'Port Elizabeth',
+      'Bloemfontein', 'East London', 'Pietermaritzburg',
+    ],
+    '🇧🇷 Brazil': [
+      'São Paulo', 'Rio de Janeiro', 'Brasília', 'Salvador', 'Fortaleza',
+      'Belo Horizonte', 'Manaus', 'Curitiba', 'Recife', 'Porto Alegre',
+    ],
+    '🇲🇽 Mexico': [
+      'Mexico City', 'Guadalajara', 'Monterrey', 'Puebla', 'Tijuana',
+      'León', 'Juárez', 'Zapopan', 'Mérida', 'Cancún',
+    ],
+    '🇳🇿 New Zealand': [
+      'Auckland', 'Wellington', 'Christchurch', 'Hamilton', 'Tauranga',
+      'Napier', 'Dunedin', 'Palmerston North',
+    ],
+    '🇵🇭 Philippines': [
+      'Manila', 'Cebu City', 'Davao', 'Quezon City', 'Makati',
+    ],
+    '🇲🇾 Malaysia': [
+      'Kuala Lumpur', 'George Town', 'Johor Bahru', 'Ipoh', 'Shah Alam',
+    ],
+    '🇹🇭 Thailand': [
+      'Bangkok', 'Chiang Mai', 'Phuket', 'Pattaya', 'Hat Yai',
+    ],
+  };
+
+  // Check plan
+  function getPlan() {
+    return localStorage.getItem('lh_plan') || 'free';
+  }
+
+  function demoPro() {
+    localStorage.setItem('lh_plan', 'pro');
+    location.reload();
+  }
+
+  function init() {
+    const plan = getPlan();
+    if (plan === 'free') {
+      document.getElementById('lockScreen').style.display = 'flex';
+    } else {
+      document.getElementById('mainContent').style.display = 'block';
+      renderNiches();
+      renderCities();
+      populateComboNiche();
+    }
+  }
+
+  function renderNiches(filter = '') {
+    const container = document.getElementById('nicheList');
+    let html = '';
+    let total = 0;
+    for (const [cat, items] of Object.entries(NICHES)) {
+      const filtered = items.filter(i => i.name.toLowerCase().includes(filter.toLowerCase()));
+      if (!filtered.length) continue;
+      total += filtered.length;
+      html += `<div class="category-label">${cat}</div>`;
+      filtered.forEach((item, idx) => {
+        const i = Object.values(NICHES).flat().findIndex(n => n.name === item.name);
+        html += `<div class="list-item" onclick="copyItem('${item.name}', this)">
+          <span class="item-icon">${item.icon}</span>
+          <span class="item-name">${item.name}</span>
+          <span class="item-copy">Copy</span>
+        </div>`;
+      });
+    }
+    container.innerHTML = html;
+    document.getElementById('nicheCount').textContent = `${total} niches`;
+    return total;
+  }
+
+  function renderCities(filter = '') {
+    const container = document.getElementById('cityList');
+    let html = '';
+    let total = 0;
+    for (const [region, cities] of Object.entries(CITIES)) {
+      const filtered = cities.filter(c => c.toLowerCase().includes(filter.toLowerCase()));
+      if (!filtered.length) continue;
+      total += filtered.length;
+      html += `<div class="category-label">${region}</div>`;
+      filtered.forEach(city => {
+        html += `<div class="list-item" onclick="copyItem('${city}', this)">
+          <span class="item-icon">📍</span>
+          <span class="item-name">${city}</span>
+          <span class="item-copy">Copy</span>
+        </div>`;
+      });
+    }
+    container.innerHTML = html;
+    document.getElementById('cityCount').textContent = `${total} cities`;
+    return total;
+  }
+
+  function filterLists() {
+    const nicheQ = document.getElementById('nicheSearch').value;
+    const cityQ = document.getElementById('citySearch').value;
+    const n = renderNiches(nicheQ);
+    const c = renderCities(cityQ);
+    const count = document.getElementById('resultCount');
+    if (nicheQ || cityQ) {
+      count.textContent = `${n} niches · ${c} cities`;
+    } else {
+      count.textContent = 'Showing all';
+    }
+  }
+
+  function copyItem(text, el) {
+    navigator.clipboard.writeText(text).then(() => {
+      el.classList.add('copied');
+      setTimeout(() => el.classList.remove('copied'), 800);
+      const toast = document.getElementById('toast');
+      toast.textContent = `"${text}" copied!`;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2000);
+    });
+  }
+
+  function populateComboNiche() {
+    const sel = document.getElementById('comboNiche');
+    for (const [cat, items] of Object.entries(NICHES)) {
+      const group = document.createElement('optgroup');
+      group.label = cat;
+      items.forEach(item => {
+        const opt = document.createElement('option');
+        opt.value = item.name;
+        opt.textContent = `${item.icon} ${item.name}`;
+        group.appendChild(opt);
+      });
+      sel.appendChild(group);
+    }
+  }
+
+  const REGION_MAP = {
+    usa: '🇺🇸 United States',
+    uk: '🇬🇧 United Kingdom',
+    australia: '🇦🇺 Australia',
+    canada: '🇨🇦 Canada',
+    europe: ['🇩🇪 Germany', '🇫🇷 France', '🇪🇸 Spain', '🇮🇹 Italy', '🇳🇱 Netherlands'],
+    asia: ['🇸🇬 Singapore', '🇭🇰 Hong Kong', '🇯🇵 Japan', '🇮🇳 India', '🇵🇭 Philippines', '🇲🇾 Malaysia', '🇹🇭 Thailand'],
+    middleeast: ['🇦🇪 UAE'],
+  };
+
+  function generateCombos() {
+    const niche = document.getElementById('comboNiche').value;
+    const region = document.getElementById('comboRegion').value;
+    if (!niche) { alert('Please select a niche first'); return; }
+
+    let cities = [];
+    if (region === 'all') {
+      cities = Object.values(CITIES).flat();
+    } else {
+      const keys = REGION_MAP[region];
+      if (Array.isArray(keys)) {
+        keys.forEach(k => { if (CITIES[k]) cities.push(...CITIES[k]); });
+      } else {
+        if (CITIES[keys]) cities.push(...CITIES[keys]);
+      }
+    }
+
+    // Pick up to 20 random cities
+    const shuffled = cities.sort(() => Math.random() - 0.5).slice(0, 20);
+    const container = document.getElementById('comboResults');
+    container.innerHTML = shuffled.map(city =>
+      `<div class="combo-tag" onclick="copyItem('${niche} in ${city}', this)">
+        ${niche} in ${city} <span class="go">→ copy</span>
+      </div>`
+    ).join('');
+  }
+
+  init();
+</script>
+</body>
+</html>
