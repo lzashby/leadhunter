@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pricing — LeadHunter</title>
+  <style>
+    :root { --bg:#0d0d0d;--surface:#161616;--surface2:#1e1e1e;--border:#2a2a2a;--accent:#6c63ff;--accent2:#a78bfa;--green:#22c55e;--orange:#f97316;--text:#f1f1f1;--muted:#888; }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;}
+    nav{display:flex;align-items:center;justify-content:space-between;padding:16px 60px;border-bottom:1px solid var(--border);background:rgba(13,13,13,0.95);backdrop-filter:blur(12px);position:sticky;top:0;z-index:100;}
+    .nav-logo{font-size:22px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none;}
+    .nav-links{display:flex;gap:32px;}
+    .nav-links a{color:var(--muted);text-decoration:none;font-size:14px;transition:color 0.2s;}
+    .nav-links a:hover,.nav-links a.active{color:var(--text);}
+    .nav-right{display:flex;gap:10px;align-items:center;}
+    .nav-contact{color:var(--muted);text-decoration:none;font-size:14px;padding:8px 14px;}
+    .nav-contact:hover{color:var(--text);}
+    .btn-ghost{background:none;border:1px solid var(--border);color:var(--text);padding:8px 18px;border-radius:8px;cursor:pointer;font-size:14px;}
+    .btn-ghost:hover{border-color:var(--accent);}
+    .btn-primary{background:var(--accent);border:none;color:#fff;padding:8px 20px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;}
+    .btn-primary:hover{opacity:0.85;}
+    @media(max-width:768px){nav{padding:12px 20px;}.nav-links{display:none;}}
+
+    .hero{text-align:center;padding:80px 20px 40px;}
+    .section-label{font-size:12px;text-transform:uppercase;letter-spacing:2px;color:var(--accent2);margin-bottom:12px;}
+    h1{font-size:clamp(32px,5vw,56px);font-weight:900;margin-bottom:16px;}
+    h1 span{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    .hero-sub{color:var(--muted);font-size:17px;max-width:500px;margin:0 auto 32px;line-height:1.6;}
+
+    .billing-toggle{display:inline-flex;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:4px;gap:4px;margin-bottom:48px;}
+    .toggle-btn{padding:8px 22px;border-radius:8px;border:none;background:none;color:var(--muted);cursor:pointer;font-size:14px;transition:all 0.2s;}
+    .toggle-btn.active{background:var(--accent);color:#fff;font-weight:600;}
+    .save-badge{background:rgba(34,197,94,0.15);color:var(--green);font-size:11px;padding:2px 8px;border-radius:20px;border:1px solid rgba(34,197,94,0.2);margin-left:6px;}
+
+    .plans-wrap{max-width:1000px;margin:0 auto;padding:0 24px 80px;}
+    .plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;}
+    .plan{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:32px;position:relative;transition:border-color 0.3s;}
+    .plan:hover{border-color:var(--accent);}
+    .plan.popular{border-color:var(--accent);background:rgba(108,99,255,0.05);}
+    .popular-badge{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;font-size:11px;font-weight:700;padding:4px 16px;border-radius:20px;white-space:nowrap;}
+    .plan-name{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+    .plan-price{font-size:48px;font-weight:900;margin-bottom:4px;}
+    .plan-price span{font-size:16px;font-weight:400;color:var(--muted);}
+    .plan-desc{font-size:14px;color:var(--muted);margin-bottom:24px;line-height:1.5;}
+    .plan-btn{width:100%;padding:13px;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:24px;transition:all 0.2s;}
+    .plan-btn-outline{background:none;border:1px solid var(--border);color:var(--text);}
+    .plan-btn-outline:hover{border-color:var(--accent);color:var(--accent2);}
+    .plan-btn-fill{background:var(--accent);border:none;color:#fff;}
+    .plan-btn-fill:hover{opacity:0.85;}
+    .plan-divider{border:none;border-top:1px solid var(--border);margin-bottom:20px;}
+    .plan-features{list-style:none;display:flex;flex-direction:column;gap:11px;}
+    .plan-features li{font-size:14px;color:#ccc;display:flex;gap:9px;align-items:flex-start;}
+    .plan-features li::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0;margin-top:1px;}
+    .plan-features li.no::before{content:'✕';color:#444;}
+    .plan-features li.no{color:#555;}
+
+    .compare{max-width:900px;margin:0 auto;padding:0 24px 80px;}
+    .compare h2{font-size:28px;font-weight:800;text-align:center;margin-bottom:40px;}
+    table{width:100%;border-collapse:collapse;font-size:14px;}
+    thead th{padding:14px 16px;text-align:left;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border);}
+    thead th:not(:first-child){text-align:center;}
+    tbody td{padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.04);}
+    tbody td:not(:first-child){text-align:center;}
+    tbody tr:hover{background:rgba(255,255,255,0.02);}
+    .check{color:var(--green);font-size:16px;}
+    .cross{color:#444;font-size:16px;}
+    .highlight-col{background:rgba(108,99,255,0.05);}
+
+    .faq{max-width:680px;margin:0 auto;padding:0 24px 80px;}
+    .faq h2{font-size:28px;font-weight:800;text-align:center;margin-bottom:40px;}
+    .faq-item{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:10px;overflow:hidden;}
+    .faq-item.open{border-color:var(--accent);}
+    .faq-q{padding:18px 20px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:15px;font-weight:600;user-select:none;}
+    .faq-q:hover{color:var(--accent2);}
+    .faq-chevron{color:var(--muted);transition:transform 0.3s;}
+    .faq-item.open .faq-chevron{transform:rotate(45deg);color:var(--accent2);}
+    .faq-a{max-height:0;overflow:hidden;transition:max-height 0.35s ease;}
+    .faq-item.open .faq-a{max-height:200px;}
+    .faq-a p{padding:0 20px 18px;color:var(--muted);font-size:14px;line-height:1.7;}
+
+    .guarantee{max-width:700px;margin:0 auto 80px;padding:0 24px;}
+    .guarantee-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:36px;text-align:center;}
+    .guarantee-card .icon{font-size:48px;margin-bottom:16px;}
+    .guarantee-card h3{font-size:22px;font-weight:800;margin-bottom:10px;}
+    .guarantee-card p{color:var(--muted);font-size:15px;line-height:1.7;}
+
+    footer{border-top:1px solid var(--border);padding:40px 60px 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;}
+    .footer-copy{font-size:13px;color:var(--muted);}
+    .footer-links{display:flex;gap:20px;}
+    .footer-links a{font-size:13px;color:var(--muted);text-decoration:none;}
+    .footer-links a:hover{color:var(--text);}
+  </style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="index.html">⚡ LeadHunter</a>
+  <div class="nav-links">
+    <a href="index.html#features">Features</a>
+    <a href="pricing.html" class="active" style="color:var(--text);">Pricing</a>
+    <a href="about.html">About</a>
+  </div>
+  <div class="nav-right">
+    <a href="contact.html" class="nav-contact">Contact</a>
+    <button class="btn-ghost" onclick="location.href='app.html'">Log In</button>
+    <button class="btn-primary" onclick="location.href='app.html'">Get Started Free</button>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="section-label">Pricing</div>
+  <h1>Simple pricing.<br><span>No surprises.</span></h1>
+  <p class="hero-sub">Start free, no credit card needed. Upgrade when you're ready to scale.</p>
+  <div class="billing-toggle">
+    <button class="toggle-btn active" id="monthlyBtn" onclick="setBilling('monthly')">Monthly</button>
+    <button class="toggle-btn" id="annualBtn" onclick="setBilling('annual')">Annual <span class="save-badge">Save 30%</span></button>
+  </div>
+</div>
+
+<div class="plans-wrap">
+  <div class="plans">
+    <div class="plan">
+      <div class="plan-name">Free</div>
+      <div class="plan-price">$0 <span>/mo</span></div>
+      <p class="plan-desc">Perfect for trying out LeadHunter before committing.</p>
+      <button class="plan-btn plan-btn-outline" onclick="location.href='app.html'">Get Started Free</button>
+      <hr class="plan-divider">
+      <ul class="plan-features">
+        <li>5 searches per month</li>
+        <li>Up to 25 leads per search</li>
+        <li>AI lead scoring</li>
+        <li>Owner name lookup</li>
+        <li>Phone & address data</li>
+        <li>Google rating & reviews</li>
+        <li class="no">CSV export</li>
+        <li class="no">Email finder</li>
+        <li class="no">Social media audit</li>
+        <li class="no">Niche & City Explorer</li>
+        <li class="no">Priority support</li>
+      </ul>
+    </div>
+    <div class="plan popular">
+      <div class="popular-badge">MOST POPULAR</div>
+      <div class="plan-name">Pro</div>
+      <div class="plan-price" id="proPrice">$49 <span>/mo</span></div>
+      <p class="plan-desc">For freelancers and agencies serious about growing their client base.</p>
+      <button class="plan-btn plan-btn-fill" onclick="location.href='app.html'">Start Pro — Free Trial</button>
+      <hr class="plan-divider">
+      <ul class="plan-features">
+        <li>Unlimited searches</li>
+        <li>Up to 100 leads per search</li>
+        <li>AI lead scoring + full breakdown</li>
+        <li>Owner name lookup</li>
+        <li>Email finder included</li>
+        <li>Phone & address data</li>
+        <li>Social media audit</li>
+        <li>CSV & Excel export</li>
+        <li>No website filter</li>
+        <li>Niche & City Explorer</li>
+        <li>Priority email support</li>
+      </ul>
+    </div>
+    <div class="plan">
+      <div class="plan-name">Agency</div>
+      <div class="plan-price" id="agencyPrice">$149 <span>/mo</span></div>
+      <p class="plan-desc">For agencies running outreach at scale across multiple clients.</p>
+      <button class="plan-btn plan-btn-outline" onclick="location.href='app.html'">Get Agency Plan</button>
+      <hr class="plan-divider">
+      <ul class="plan-features">
+        <li>Everything in Pro</li>
+        <li>5 team seats included</li>
+        <li>Bulk city search</li>
+        <li>API access</li>
+        <li>White-label PDF reports</li>
+        <li>Competitor gap analysis</li>
+        <li>Dedicated account manager</li>
+        <li>Custom integrations</li>
+        <li>Usage analytics dashboard</li>
+        <li>SLA uptime guarantee</li>
+        <li>Phone + chat support</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="compare">
+  <h2>Full feature comparison</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Feature</th>
+        <th>Free</th>
+        <th class="highlight-col" style="color:var(--accent2);">Pro</th>
+        <th>Agency</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Monthly searches</td><td>5</td><td class="highlight-col">Unlimited</td><td>Unlimited</td></tr>
+      <tr><td>Leads per search</td><td>25</td><td class="highlight-col">100</td><td>100</td></tr>
+      <tr><td>AI lead scoring</td><td><span class="check">✓</span></td><td class="highlight-col"><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+      <tr><td>AI score breakdown</td><td><span class="cross">✕</span></td><td class="highlight-col"><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+      <tr><td>Owner name lookup</td><td><span class="check">✓</span></td><td class="highlight-col"><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+      <tr><td>Phone & address</td><td><span class="check">✓</span></td><td class="highlight-col"><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+      <tr><td>Email finder</td><td><span class="cross">✕</span></td><td class="highlight-col"><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+      <tr><td>Social media audit</td><td><span class="cross">✕</span></td><td class="highlight-col"><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+      <tr><td>CSV / Excel export</td><td><span class="cross">✕</span></td><td class="highlight-col"><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+      <tr><td>Niche & City Explorer</td><td><span class="cross">✕</span></td><td class="highlight-col"><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+      <tr><td>Bulk city search</td><td><span class="cross">✕</span></td><td class="highlight-col"><span class="cross">✕</span></td><td><span class="check">✓</span></td></tr>
+      <tr><td>Team seats</td><td><span class="cross">✕</span></td><td class="highlight-col"><span class="cross">✕</span></td><td><span class="check">✓ 5 seats</span></td></tr>
+      <tr><td>API access</td><td><span class="cross">✕</span></td><td class="highlight-col"><span class="cross">✕</span></td><td><span class="check">✓</span></td></tr>
+      <tr><td>White-label reports</td><td><span class="cross">✕</span></td><td class="highlight-col"><span class="cross">✕</span></td><td><span class="check">✓</span></td></tr>
+      <tr><td>Support</td><td>Community</td><td class="highlight-col">Priority email</td><td>Phone + chat</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="guarantee">
+  <div class="guarantee-card">
+    <div class="icon">🛡️</div>
+    <h3>7-Day Money Back Guarantee</h3>
+    <p>Not happy in your first 7 days? We'll refund you in full, no questions asked. We're confident you'll find value — but if not, you won't be out of pocket.</p>
+  </div>
+</div>
+
+<div class="faq">
+  <h2>Pricing questions</h2>
+  <div class="faq-item">
+    <div class="faq-q" onclick="toggleFaq(this)">Do I need a credit card to start? <span class="faq-chevron">+</span></div>
+    <div class="faq-a"><p>No. The free plan requires no payment details at all. You only need a card when you upgrade to Pro or Agency.</p></div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q" onclick="toggleFaq(this)">Can I cancel anytime? <span class="faq-chevron">+</span></div>
+    <div class="faq-a"><p>Yes — cancel anytime from your dashboard. No contracts, no penalties. You keep access until the end of your billing period.</p></div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q" onclick="toggleFaq(this)">What happens when I hit my search limit? <span class="faq-chevron">+</span></div>
+    <div class="faq-a"><p>Free users are notified when they reach 5 searches and can upgrade to continue. Pro and Agency users have unlimited searches with no interruptions.</p></div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q" onclick="toggleFaq(this)">Is there a free trial for Pro? <span class="faq-chevron">+</span></div>
+    <div class="faq-a"><p>Yes — you get a 7-day free trial on Pro. If you're not satisfied, cancel within 7 days for a full refund.</p></div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q" onclick="toggleFaq(this)">Do you offer discounts for annual plans? <span class="faq-chevron">+</span></div>
+    <div class="faq-a"><p>Yes — paying annually saves you 30%. Pro drops from $49/mo to $34/mo, and Agency from $149/mo to $104/mo.</p></div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-copy">© 2026 LeadHunter. All rights reserved.</div>
+  <div class="footer-links">
+    <a href="privacy.html">Privacy Policy</a>
+    <a href="terms.html">Terms of Service</a>
+    <a href="contact.html">Contact</a>
+  </div>
+</footer>
+
+<script>
+function setBilling(mode) {
+  document.getElementById('monthlyBtn').classList.toggle('active', mode === 'monthly');
+  document.getElementById('annualBtn').classList.toggle('active', mode === 'annual');
+  document.getElementById('proPrice').innerHTML    = mode === 'annual' ? '$34 <span>/mo</span>' : '$49 <span>/mo</span>';
+  document.getElementById('agencyPrice').innerHTML = mode === 'annual' ? '$104 <span>/mo</span>' : '$149 <span>/mo</span>';
+}
+function toggleFaq(el) {
+  const item = el.parentElement;
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+</script>
+</body>
+</html>
