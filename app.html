@@ -458,8 +458,8 @@
   </div>
   <div class="nav-right">
     <a href="niches.html" style="color:#a855f7;font-size:14px;text-decoration:none;display:flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid #2a2a3e;border-radius:8px;" onmouseover="this.style.borderColor='#a855f7'" onmouseout="this.style.borderColor='#2a2a3e'">🗺️ Niche & City Explorer</a>
-    <button class="btn-ghost" onclick="location.href='index.html'">Home</button>
-    <button class="btn-primary">Log In</button>
+    <span id="userEmail" style="color:var(--muted);font-size:13px;"></span>
+    <button class="btn-ghost" id="logoutBtn" onclick="logout()" style="display:none;">Log Out</button>
   </div>
 </nav>
 
@@ -1213,6 +1213,30 @@ document.addEventListener('click', function(e) {
 // Init after all functions are defined
 updateSearchCounter();
 updateExportButton();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const { createClient } = supabase;
+  const sb = createClient(
+    'https://hysngrxzysorzxlbytjq.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh5c25ncnh6eXNvcnp4bGJ5dGpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyNTMzNTMsImV4cCI6MjA4OTgyOTM1M30.sG4g5WhReJqSe7kUES9g8AVrzh83QvGMRUg5kT0whJ8'
+  );
+
+  sb.auth.getSession().then(({ data }) => {
+    if (!data.session) {
+      location.href = 'login.html';
+      return;
+    }
+    const email = data.session.user.email;
+    document.getElementById('userEmail').textContent = email;
+    document.getElementById('logoutBtn').style.display = 'inline-block';
+  });
+
+  async function logout() {
+    await sb.auth.signOut();
+    location.href = 'index.html';
+  }
 </script>
 </body>
 </html>

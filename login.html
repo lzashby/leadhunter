@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Log In — LeadHunter</title>
+  <style>
+    :root{--bg:#0d0d0d;--surface:#161616;--surface2:#1e1e1e;--border:#2a2a2a;--accent:#6c63ff;--accent2:#a78bfa;--green:#22c55e;--red:#ef4444;--text:#f1f1f1;--muted:#888;}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;display:flex;flex-direction:column;}
+    nav{display:flex;align-items:center;justify-content:space-between;padding:16px 40px;border-bottom:1px solid var(--border);}
+    .nav-logo{font-size:22px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none;}
+    .nav-signup{color:var(--muted);font-size:14px;text-decoration:none;}
+    .nav-signup:hover{color:var(--text);}
+    .nav-signup span{color:var(--accent2);}
+
+    .page{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 20px;}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:40px;width:100%;max-width:420px;}
+    .card-header{text-align:center;margin-bottom:32px;}
+    .card-header h1{font-size:26px;font-weight:800;margin-bottom:8px;}
+    .card-header p{color:var(--muted);font-size:15px;}
+
+    .form-group{margin-bottom:18px;}
+    label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px;font-weight:500;}
+    input{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:12px 14px;border-radius:10px;font-size:15px;outline:none;transition:border-color 0.2s;}
+    input:focus{border-color:var(--accent);}
+    input::placeholder{color:#444;}
+
+    .forgot{display:block;text-align:right;font-size:12px;color:var(--muted);text-decoration:none;margin-top:4px;}
+    .forgot:hover{color:var(--accent2);}
+
+    .btn-submit{width:100%;background:linear-gradient(135deg,var(--accent),#8b5cf6);border:none;color:#fff;padding:14px;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;transition:opacity 0.2s;margin-top:8px;}
+    .btn-submit:hover{opacity:0.9;}
+    .btn-submit:disabled{opacity:0.5;cursor:not-allowed;}
+
+    .signup-link{text-align:center;margin-top:20px;font-size:14px;color:var(--muted);}
+    .signup-link a{color:var(--accent2);text-decoration:none;font-weight:600;}
+    .signup-link a:hover{text-decoration:underline;}
+
+    .error-msg{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:var(--red);padding:12px 14px;border-radius:8px;font-size:14px;margin-bottom:16px;display:none;}
+  </style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="index.html">⚡ LeadHunter</a>
+  <a class="nav-signup" href="signup.html">Don't have an account? <span>Sign up free</span></a>
+</nav>
+
+<div class="page">
+  <div class="card">
+    <div class="card-header">
+      <h1>Welcome back</h1>
+      <p>Log in to your LeadHunter account</p>
+    </div>
+
+    <div class="error-msg" id="errorMsg"></div>
+
+    <div class="form-group">
+      <label>Email address</label>
+      <input type="email" id="email" placeholder="john@agency.com" onkeydown="if(event.key==='Enter')login()" />
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="password" placeholder="Your password" onkeydown="if(event.key==='Enter')login()" />
+      <a class="forgot" href="reset.html">Forgot password?</a>
+    </div>
+
+    <button class="btn-submit" id="submitBtn" onclick="login()">Log In →</button>
+    <p class="signup-link">Don't have an account? <a href="signup.html">Sign up free</a></p>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const { createClient } = supabase;
+  const sb = createClient(
+    'https://hysngrxzysorzxlbytjq.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh5c25ncnh6eXNvcnp4bGJ5dGpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyNTMzNTMsImV4cCI6MjA4OTgyOTM1M30.sG4g5WhReJqSe7kUES9g8AVrzh83QvGMRUg5kT0whJ8'
+  );
+
+  // If already logged in, go straight to app
+  sb.auth.getSession().then(({ data }) => {
+    if (data.session) location.href = 'app.html';
+  });
+
+  async function login() {
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const btn = document.getElementById('submitBtn');
+    const errMsg = document.getElementById('errorMsg');
+
+    errMsg.style.display = 'none';
+    if (!email || !password) { showError('Please enter your email and password.'); return; }
+
+    btn.disabled = true;
+    btn.textContent = 'Logging in...';
+
+    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+
+    if (error) {
+      showError('Incorrect email or password. Please try again.');
+      btn.disabled = false;
+      btn.textContent = 'Log In →';
+      return;
+    }
+
+    location.href = 'app.html';
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('errorMsg');
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+</script>
+</body>
+</html>
