@@ -127,14 +127,24 @@
     btn.disabled = true;
     btn.textContent = 'Creating account...';
 
-    const { data, error } = await sb.auth.signUp({
+    const { error: signUpError } = await sb.auth.signUp({
       email,
       password,
       options: { data: { full_name: name } }
     });
 
-    if (error) {
-      showError(error.message);
+    if (signUpError) {
+      showError(signUpError.message);
+      btn.disabled = false;
+      btn.textContent = 'Create Free Account →';
+      return;
+    }
+
+    // Auto sign in straight after signup
+    const { error: signInError } = await sb.auth.signInWithPassword({ email, password });
+
+    if (signInError) {
+      showError('Account created but could not log in automatically. Please log in.');
       btn.disabled = false;
       btn.textContent = 'Create Free Account →';
       return;
@@ -142,7 +152,7 @@
 
     okMsg.textContent = '✓ Account created! Taking you to the app...';
     okMsg.style.display = 'block';
-    setTimeout(() => location.href = 'app.html', 1200);
+    setTimeout(() => location.href = 'app.html', 800);
   }
 
   function showError(msg) {
