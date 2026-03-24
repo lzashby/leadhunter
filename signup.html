@@ -141,7 +141,7 @@
     }
 
     // Auto sign in straight after signup
-    const { error: signInError } = await sb.auth.signInWithPassword({ email, password });
+    const { data: signInData, error: signInError } = await sb.auth.signInWithPassword({ email, password });
 
     if (signInError) {
       showError('Account created but could not log in automatically. Please log in.');
@@ -149,6 +149,13 @@
       btn.textContent = 'Create Free Account →';
       return;
     }
+
+    // Create profile row with free plan
+    await sb.from('profiles').insert({
+      id: signInData.user.id,
+      full_name: name,
+      plan: 'free'
+    });
 
     okMsg.textContent = '✓ Account created! Taking you to the app...';
     okMsg.style.display = 'block';
