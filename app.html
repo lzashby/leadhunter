@@ -957,27 +957,54 @@ async function runSearch() {
 
   const count = parseInt(document.getElementById('leadsSlider').value);
 
+  // Animate progress while fetching real data
   const steps = [
     [15, 'Searching Google Maps...', `Finding ${niche} in ${city}`],
     [35, 'Scraping business listings...', 'Collecting names, phones & addresses'],
-    [55, 'Looking up websites...', 'Checking which businesses have a web presence'],
-    [72, 'Finding email addresses...', 'Pattern matching & verification'],
-    [88, 'Gathering ratings & reviews...', 'Pulling Google ratings data'],
-    [100, 'Done!', `Found ${count} leads for ${niche} in ${city}`],
+    [60, 'Looking up websites...', 'Checking which businesses have a web presence'],
+    [80, 'Gathering ratings & reviews...', 'Pulling Google ratings data'],
   ];
 
-  for (const [pct, text, sub] of steps) {
-    document.getElementById('loadingText').textContent = text;
-    document.getElementById('loadingSub').textContent  = sub;
-    document.getElementById('progressBar').style.width  = pct + '%';
-    await sleep(420 + Math.random() * 300);
+  // Start progress animation
+  const progressPromise = (async () => {
+    for (const [pct, text, sub] of steps) {
+      document.getElementById('loadingText').textContent = text;
+      document.getElementById('loadingSub').textContent  = sub;
+      document.getElementById('progressBar').style.width  = pct + '%';
+      await sleep(600);
+    }
+  })();
+
+  // Fetch real data from backend
+  try {
+    const res = await fetch(`https://leadhunter-backend-production.up.railway.app/search?niche=${encodeURIComponent(niche)}&city=${encodeURIComponent(city)}&count=${count}`);
+    const data = await res.json();
+
+    await progressPromise;
+
+    document.getElementById('loadingText').textContent = 'Done!';
+    document.getElementById('loadingSub').textContent  = `Found ${data.leads.length} leads for ${niche} in ${city}`;
+    document.getElementById('progressBar').style.width = '100%';
+    await sleep(400);
+
+    loading.style.display = 'none';
+
+    // Map backend fields to frontend expected fields
+    allLeads = data.leads.map(l => ({
+      ...l,
+      hasWeb:   l.hasWebsite,
+      hasEmail: !!l.email,
+      years:    null,
+      social:   l.social || {},
+    }));
+
+    renderResults(niche, city);
+
+  } catch (err) {
+    loading.style.display = 'none';
+    alert('Search failed — please try again.');
+    console.error(err);
   }
-
-  await sleep(300);
-  loading.style.display = 'none';
-
-  allLeads = generateLeads(niche, city, count);
-  renderResults(niche, city);
 }
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
