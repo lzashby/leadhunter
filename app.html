@@ -1063,11 +1063,12 @@ function renderTable() {
     const emailCell = l.email
       ? `<span class="email-text">${l.email}</span>`
       : `<span style="color:#555;font-size:12px;">Not found</span>`;
-    const yearsText = l.years === 1 ? '1 year' : `${l.years} years`;
+    const yearsText = l.years ? (l.years === 1 ? '1 year' : `${l.years} years`) : 'Unknown';
 
-    const fb = l.socials.hasFacebook  ? `<span title="Facebook"  style="color:#4267B2;font-size:15px;">f</span>` : `<span title="No Facebook"  style="color:#333;font-size:15px;">f</span>`;
-    const ig = l.socials.hasInstagram ? `<span title="Instagram" style="color:#E1306C;font-size:15px;">ig</span>` : `<span title="No Instagram" style="color:#333;font-size:15px;">ig</span>`;
-    const li = l.socials.hasLinkedin  ? `<span title="LinkedIn"  style="color:#0077b5;font-size:15px;">in</span>` : `<span title="No LinkedIn"  style="color:#333;font-size:15px;">in</span>`;
+    const socials = l.socials || l.social || {};
+    const fb = socials.hasFacebook  || socials.facebook  ? `<span title="Facebook"  style="color:#4267B2;font-size:15px;">f</span>` : `<span title="No Facebook"  style="color:#333;font-size:15px;">f</span>`;
+    const ig = socials.hasInstagram || socials.instagram ? `<span title="Instagram" style="color:#E1306C;font-size:15px;">ig</span>` : `<span title="No Instagram" style="color:#333;font-size:15px;">ig</span>`;
+    const li = socials.hasLinkedin  || socials.linkedin  ? `<span title="LinkedIn"  style="color:#0077b5;font-size:15px;">in</span>` : `<span title="No LinkedIn"  style="color:#333;font-size:15px;">in</span>`;
     const socialsCell = `<div style="display:flex;gap:6px;align-items:center;font-weight:700;font-family:monospace;">${fb}${ig}${li}</div>`;
 
     const reviewsLow = l.reviews < 10;
