@@ -1084,11 +1084,13 @@ function renderTable() {
         <span style="font-size:10px;color:${scoreColor};font-weight:600;">${scoreLabel}</span>
       </div>`;
 
-    const signalsCell = l.signals.length
+    const signalsCell = (l.signals && l.signals.length)
       ? l.signals.map(s => `<span title="${s.label}" style="font-size:16px;cursor:default;">${s.icon}</span>`).join(' ')
       : `<span style="color:#555;font-size:12px;">—</span>`;
 
-    const freshnessCell = `<span style="font-size:12px;color:${l.freshness.color};font-weight:600;">${l.freshness.label}</span>`;
+    const freshnessCell = l.freshness
+      ? `<span style="font-size:12px;color:${l.freshness.color};font-weight:600;">${l.freshness.label}</span>`
+      : `<span style="font-size:12px;color:var(--green);font-weight:600;">Live</span>`;
 
     const tr = document.createElement('tr');
     tr.innerHTML = `
