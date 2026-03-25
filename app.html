@@ -848,8 +848,11 @@ updateSlider(50);
 // ── Free tier ─────────────────────────────────────────────────────────────────
 const FREE_SEARCH_LIMIT = 5;
 
+// Real plan loaded from Supabase — set once auth loads
+let currentPlan = 'free';
+
 function getPlan() {
-  return localStorage.getItem('lh_plan') || 'free';
+  return currentPlan;
 }
 
 function getSearchCount() {
@@ -1217,21 +1220,25 @@ updateExportButton();
     document.getElementById('userEmail').textContent = user.email;
     document.getElementById('logoutBtn').style.display = 'inline-block';
 
-    // Fetch plan from profiles table
+    // Fetch plan from profiles table and set globally
     const { data: profile } = await sb.from('profiles').select('plan').eq('id', user.id).single();
-    const plan = profile?.plan || 'free';
+    currentPlan = profile?.plan || 'free';
 
     const planColors = { free: '#888', pro: '#a78bfa', agency: '#f97316' };
     const planBadge = document.createElement('span');
-    planBadge.textContent = plan.toUpperCase();
+    planBadge.textContent = currentPlan.toUpperCase();
     planBadge.style.cssText = `
-      background: ${planColors[plan] || '#888'}22;
-      color: ${planColors[plan] || '#888'};
-      border: 1px solid ${planColors[plan] || '#888'}55;
+      background: ${planColors[currentPlan] || '#888'}22;
+      color: ${planColors[currentPlan] || '#888'};
+      border: 1px solid ${planColors[currentPlan] || '#888'}55;
       font-size: 11px; font-weight: 700; padding: 3px 8px;
       border-radius: 20px; letter-spacing: 0.5px;
     `;
     document.getElementById('userEmail').after(planBadge);
+
+    // Update UI now that real plan is loaded
+    updateSearchCounter();
+    updateExportButton();
   });
 
   async function logout() {
