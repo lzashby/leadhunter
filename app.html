@@ -1058,7 +1058,7 @@ function renderTable() {
   leads.forEach((l, i) => {
     const stars = '★'.repeat(Math.floor(l.rating)) + (l.rating % 1 >= 0.5 ? '½' : '');
     const websiteBadge = l.hasWeb
-      ? `<a href="https://${l.website}" target="_blank" class="web-link">${l.website}</a>`
+      ? `<a href="${l.website}" target="_blank" class="web-link">${l.website.replace(/^https?:\/\//, '')}</a>`
       : `<span class="badge badge-red">✕ No Website</span>`;
     const emailCell = l.email
       ? `<span class="email-text">${l.email}</span>`
