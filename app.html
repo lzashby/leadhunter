@@ -1150,31 +1150,29 @@ function showScorePopup(index, event) {
   circle.style.borderColor = scoreColor;
   circle.style.color = scoreColor;
 
-  document.getElementById('popupScoreLabel').innerHTML = l.explanation.length
-    ? l.explanation.map(r => `• ${r}`).join('<br>')
+  document.getElementById('popupScoreLabel').innerHTML = l.scoreExplanation
+    ? l.scoreExplanation.split(' + ').map(r => `• ${r}`).join('<br>')
     : 'No major gaps detected — this is a competitive lead.';
 
   const gapsEl = document.getElementById('popupGaps');
-  gapsEl.innerHTML = l.gaps.length
-    ? l.gaps.map(g => `<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;font-size:12px;color:#ccc;"><span style="color:#ef4444;font-weight:700;">✕</span>${g}</div>`).join('')
+  const gapsList = [];
+  if (!l.hasWebsite) gapsList.push('No website detected');
+  if (l.reviews < 10) gapsList.push(`Only ${l.reviews} Google reviews`);
+  if (l.rating && l.rating < 4.0) gapsList.push(`Low rating (${l.rating} stars)`);
+  if (!l.email) gapsList.push('No email address found');
+  gapsEl.innerHTML = gapsList.length
+    ? gapsList.map(g => `<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;font-size:12px;color:#ccc;"><span style="color:#ef4444;font-weight:700;">✕</span>${g}</div>`).join('')
     : '<div style="font-size:12px;color:#555;">No major gaps found.</div>';
 
-  const signalsEl = document.getElementById('popupSignals');
-  const sigSec = document.getElementById('popupSignalsSection');
-  if (l.signals.length) {
-    sigSec.style.display = 'block';
-    signalsEl.innerHTML = l.signals.map(s => `<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:12px;"><span>${s.icon}</span><span style="color:${s.color};font-weight:600;">${s.label}</span></div>`).join('');
-  } else {
-    sigSec.style.display = 'none';
-  }
+  document.getElementById('popupSignalsSection').style.display = 'none';
 
   const tips = [
-    `Mention that ${l.reviews < 10 ? 'they only have ' + l.reviews + ' reviews' : 'their rating could be improved'} — offer reputation help.`,
-    `Lead with their missing ${!l.hasWeb ? 'website' : 'social media'} — it's their biggest gap.`,
-    `Address them by name${l.owner ? ` (${l.owner.split(' ')[0]})` : ''} in your outreach for a 3× higher reply rate.`,
-    `They've been in business ${l.years} years — frame your pitch around growth, not survival.`,
+    `${l.reviews < 10 ? `They only have ${l.reviews} reviews — offer reputation management.` : 'Their rating could be improved — pitch review generation services.'}`,
+    `Lead with their missing ${!l.hasWebsite ? 'website' : 'online presence'} — it's their biggest gap.`,
+    `Address them by name${l.ownerName ? ` (${l.ownerName.split(' ')[0]})` : ''} in your outreach for a 3× higher reply rate.`,
+    `Call during business hours and mention you found them on Google Maps — it builds instant credibility.`,
   ];
-  document.getElementById('popupTip').textContent = rand(tips);
+  document.getElementById('popupTip').textContent = tips[Math.floor(Math.random() * tips.length)];
 
   // Position near click
   popup.style.display = 'block';
