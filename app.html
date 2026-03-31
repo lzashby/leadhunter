@@ -631,6 +631,9 @@
 </footer>
 
 <script>
+let currentPlan = 'free';
+let userPlan = 'free';
+
 // ── Mock data engine ──────────────────────────────────────────────────────────
 const firstNames = ['James','Sarah','Michael','Emma','David','Lisa','Robert','Anna','John','Maria','Chris','Kate','Daniel','Sophie','Tom','Rachel'];
 const lastNames  = ['Smith','Johnson','Williams','Brown','Jones','Garcia','Miller','Davis','Wilson','Taylor','Anderson','Thomas','Jackson','White','Harris'];
@@ -854,10 +857,6 @@ updateSlider(50);
 
 // ── Free tier ─────────────────────────────────────────────────────────────────
 const FREE_SEARCH_LIMIT = 5;
-
-// Real plan loaded from Supabase — set once auth loads
-let currentPlan = 'free';
-let userPlan = 'free';
 
 function getPlan() {
   return currentPlan;
