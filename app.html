@@ -502,7 +502,7 @@
       <div class="slider-value" id="sliderVal">50</div>
       <div class="slider-wrap">
         <input type="range" id="leadsSlider" min="10" max="100" step="5" value="50" oninput="updateSlider(this.value)">
-        <div class="slider-ticks">
+        <div class="slider-ticks" id="sliderTicks">
           <span>10</span><span>25</span><span>50</span><span>75</span><span>100</span>
         </div>
       </div>
@@ -843,13 +843,16 @@ function updateSlider(val) {
 // Set slider limits based on plan
 function initSlider() {
   const slider = document.getElementById('leadsSlider');
+  const ticks  = document.getElementById('sliderTicks');
   if (userPlan === 'free') {
     slider.max   = 25;
     slider.value = 20;
+    ticks.innerHTML = '<span>10</span><span>15</span><span>20</span><span>25</span>';
     updateSlider(20);
   } else {
     slider.max   = 100;
     slider.value = 50;
+    ticks.innerHTML = '<span>10</span><span>25</span><span>50</span><span>75</span><span>100</span>';
     updateSlider(50);
   }
 }
