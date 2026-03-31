@@ -178,9 +178,11 @@
   });
 
   // Check URL param to start on login side
-  if (new URLSearchParams(location.search).get('mode') === 'login') {
-    showLogin();
-  }
+  window.addEventListener('DOMContentLoaded', () => {
+    if (new URLSearchParams(location.search).get('mode') === 'login') {
+      showLogin();
+    }
+  });
 
   let isLogin = false;
 
