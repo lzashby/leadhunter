@@ -1112,9 +1112,7 @@ function renderTable() {
       ? `<a href="${l.website}" target="_blank" class="web-link">${l.website.replace(/^https?:\/\//, '')}</a>`
       : `<span class="badge badge-red">✕ No Website</span>`;
     const emailCell = l.email
-      ? (l.emailProbable
-          ? `<span class="email-text" title="Probable — scraped from website failed, using domain pattern">${l.email} <span style="font-size:10px;color:#888;">~probable</span></span>`
-          : `<a href="mailto:${l.email}" class="email-text" title="Found on their website">${l.email}</a>`)
+      ? `<a href="mailto:${l.email}" class="email-text" title="Found on their website">${l.email}</a>`
       : `<span style="color:#555;font-size:12px;">—</span>`;
     const yearsText = l.years ? (l.years === 1 ? '1 year' : `${l.years} years`) : 'Unknown';
 
