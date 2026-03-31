@@ -825,19 +825,18 @@ function updateSlider(val) {
   if (statLeads) statLeads.textContent = val;
 
   const slider = document.getElementById('leadsSlider');
-  const pct = (val - 10) / (100 - 10) * 100;
+  const max = parseInt(slider.max) || 100;
+  const min = parseInt(slider.min) || 10;
+  const pct = (val - min) / (max - min) * 100;
   slider.style.background = `linear-gradient(to right, var(--accent) ${pct}%, var(--border) ${pct}%)`;
 
   const tag = document.getElementById('planTag');
-  if (val <= 25) {
+  if (userPlan === 'free') {
     tag.textContent = 'Free';
     tag.className = 'plan-tag tag-free';
-  } else if (val <= 100) {
+  } else {
     tag.textContent = 'Pro';
     tag.className = 'plan-tag tag-pro';
-  } else {
-    tag.textContent = 'Agency';
-    tag.className = 'plan-tag tag-agency';
   }
 }
 // Set slider limits based on plan
