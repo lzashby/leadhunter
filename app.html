@@ -515,7 +515,7 @@
   <div class="stats-bar">
     <div class="stat"><div class="stat-num">190+</div><div class="stat-label">Countries</div></div>
     <div class="stat"><div class="stat-num">500+</div><div class="stat-label">Business Niches</div></div>
-    <div class="stat"><div class="stat-num" id="statLeads">50</div><div class="stat-label">Leads Per Search</div></div>
+    <div class="stat"><div class="stat-num">100</div><div class="stat-label">Leads Per Search</div></div>
     <div class="stat"><div class="stat-num">CSV</div><div class="stat-label">Instant Export</div></div>
   </div>
 </section>
@@ -821,8 +821,6 @@ function generateLeads(niche, city, count = 100) {
 function updateSlider(val) {
   val = parseInt(val);
   document.getElementById('sliderVal').textContent = val;
-  const statLeads = document.getElementById('statLeads');
-  if (statLeads) statLeads.textContent = val;
 
   const slider = document.getElementById('leadsSlider');
   const max = parseInt(slider.max) || 100;
