@@ -840,7 +840,19 @@ function updateSlider(val) {
     tag.className = 'plan-tag tag-agency';
   }
 }
-// Init slider fill on load
+// Set slider limits based on plan
+function initSlider() {
+  const slider = document.getElementById('leadsSlider');
+  if (userPlan === 'free') {
+    slider.max   = 25;
+    slider.value = 20;
+    updateSlider(20);
+  } else {
+    slider.max   = 100;
+    slider.value = 50;
+    updateSlider(50);
+  }
+}
 updateSlider(50);
 
 // ── Free tier ─────────────────────────────────────────────────────────────────
@@ -1257,9 +1269,12 @@ updateExportButton();
     `;
     document.getElementById('userEmail').after(planBadge);
 
+    userPlan = currentPlan;
+
     // Update UI now that real plan is loaded
     updateSearchCounter();
     updateExportButton();
+    initSlider();
   });
 
   async function logout() {
