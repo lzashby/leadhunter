@@ -1113,9 +1113,9 @@ function renderTable() {
       : `<span class="badge badge-red">✕ No Website</span>`;
     const emailCell = l.email
       ? (l.emailProbable
-          ? `<span class="email-text" title="Probable email based on website domain">${l.email} <span style="font-size:10px;color:#888;">~probable</span></span>`
-          : `<span class="email-text">${l.email}</span>`)
-      : `<span style="color:#555;font-size:12px;">No website</span>`;
+          ? `<span class="email-text" title="Probable — scraped from website failed, using domain pattern">${l.email} <span style="font-size:10px;color:#888;">~probable</span></span>`
+          : `<a href="mailto:${l.email}" class="email-text" title="Found on their website">${l.email}</a>`)
+      : `<span style="color:#555;font-size:12px;">—</span>`;
     const yearsText = l.years ? (l.years === 1 ? '1 year' : `${l.years} years`) : 'Unknown';
 
     const socials = l.socials || l.social || {};
