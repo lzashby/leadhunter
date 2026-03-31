@@ -978,8 +978,21 @@ async function runSearch() {
 
   // Fetch real data from backend
   try {
-    const res = await fetch(`https://leadhunter-backend-production.up.railway.app/search?niche=${encodeURIComponent(niche)}&city=${encodeURIComponent(city)}&count=${count}`);
+    const { data: { session } } = await sb.auth.getSession();
+    const res = await fetch(`https://leadhunter-backend-production.up.railway.app/search?niche=${encodeURIComponent(niche)}&city=${encodeURIComponent(city)}&count=${count}`, {
+      headers: { 'Authorization': `Bearer ${session.access_token}` }
+    });
     const data = await res.json();
+
+    // Handle plan limit reached
+    if (data.error === 'LIMIT_REACHED') {
+      await progressPromise;
+      loading.style.display = 'none';
+      showUpgradeModal();
+      return;
+    }
+
+    if (!res.ok) throw new Error(data.error || 'Search failed');
 
     await progressPromise;
 
@@ -989,6 +1002,20 @@ async function runSearch() {
     await sleep(400);
 
     loading.style.display = 'none';
+
+    // Update search counter from real backend data
+    if (data.usage) {
+      userPlan = data.usage.plan;
+      const el = document.getElementById('searchCounter');
+      if (el) {
+        if (data.usage.searches_limit === 'unlimited') {
+          el.innerHTML = `<span style="color:var(--accent2);">✦ Pro — Unlimited searches</span>`;
+        } else {
+          const left = Math.max(0, data.usage.searches_limit - data.usage.searches_used);
+          el.innerHTML = `<span style="color:${left <= 1 ? 'var(--orange)' : 'var(--muted)'};">${left} of ${data.usage.searches_limit} free searches remaining</span>`;
+        }
+      }
+    }
 
     // Map backend fields to frontend expected fields
     allLeads = data.leads.map(l => ({
