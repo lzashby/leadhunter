@@ -537,7 +537,7 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Export CSV
       </button>
-      <button class="btn-export" onclick="exportCSV()" style="border-color:#555;">
+      <button class="btn-export" id="exportExcelBtn" style="border-color:#555;">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
         Export Excel
       </button>
@@ -861,24 +861,16 @@ updateSlider(50);
 // ── Free tier ─────────────────────────────────────────────────────────────────
 const FREE_SEARCH_LIMIT = 5;
 
+// Populated from Supabase — never trust localStorage for plan enforcement
+let serverSearchesUsed = 0;
+let serverResetDate    = null;
+
 function getPlan() {
   return currentPlan;
 }
 
 function getSearchCount() {
-  const data = JSON.parse(localStorage.getItem('lh_searches') || '{"count":0,"reset":null}');
-  // Reset if a month has passed
-  if (data.reset && Date.now() > data.reset) {
-    localStorage.setItem('lh_searches', JSON.stringify({ count: 0, reset: null }));
-    return 0;
-  }
-  return data.count;
-}
-
-function incrementSearchCount() {
-  const data = JSON.parse(localStorage.getItem('lh_searches') || '{"count":0,"reset":null}');
-  const reset = data.reset || (Date.now() + 30 * 24 * 60 * 60 * 1000);
-  localStorage.setItem('lh_searches', JSON.stringify({ count: data.count + 1, reset }));
+  return serverSearchesUsed;
 }
 
 function updateSearchCounter() {
@@ -888,8 +880,7 @@ function updateSearchCounter() {
   if (plan === 'pro') {
     el.innerHTML = `<span style="color:var(--accent2);">✦ Pro — Unlimited searches</span>`;
   } else {
-    const used = getSearchCount();
-    const left = Math.max(0, FREE_SEARCH_LIMIT - used);
+    const left = Math.max(0, FREE_SEARCH_LIMIT - serverSearchesUsed);
     el.innerHTML = `<span style="color:${left <= 1 ? 'var(--orange)' : 'var(--muted)'};">${left} of ${FREE_SEARCH_LIMIT} free searches remaining</span>`;
   }
 }
@@ -897,11 +888,9 @@ function updateSearchCounter() {
 function showUpgradeModal() {
   const modal = document.getElementById('upgradeModal');
   modal.style.display = 'flex';
-  // Show days until reset
-  const data = JSON.parse(localStorage.getItem('lh_searches') || '{}');
-  if (data.reset) {
-    const days = Math.ceil((data.reset - Date.now()) / (1000 * 60 * 60 * 24));
-    document.getElementById('resetTimer').textContent = `Your free searches reset in ${days} day${days !== 1 ? 's' : ''}.`;
+  if (serverResetDate) {
+    const days = Math.ceil((new Date(serverResetDate) - Date.now()) / (1000 * 60 * 60 * 24));
+    if (days > 0) document.getElementById('resetTimer').textContent = `Your free searches reset in ${days} day${days !== 1 ? 's' : ''}.`;
   }
 }
 
@@ -910,28 +899,37 @@ function closeModal() {
 }
 
 function upgradeToPro() {
-  // In production this would redirect to Stripe
-  localStorage.setItem('lh_plan', 'pro');
   closeModal();
-  updateSearchCounter();
-  updateExportButton();
-  alert('You\'re now on Pro! (Demo mode — in production this triggers Stripe payment)');
+  location.href = 'pricing.html';
 }
 
 function updateExportButton() {
   const plan = getPlan();
-  const btn = document.getElementById('exportBtn');
+  const btn  = document.getElementById('exportBtn');
+  const xlBtn = document.getElementById('exportExcelBtn');
   if (!btn) return;
   if (plan === 'free') {
     btn.innerHTML = `🔒 Export CSV <span style="font-size:11px;color:var(--orange);margin-left:4px;">Pro only</span>`;
     btn.style.opacity = '0.5';
     btn.style.cursor = 'not-allowed';
     btn.onclick = () => showUpgradeModal();
+    if (xlBtn) {
+      xlBtn.innerHTML = `🔒 Export Excel <span style="font-size:11px;color:var(--orange);margin-left:4px;">Pro only</span>`;
+      xlBtn.style.opacity = '0.5';
+      xlBtn.style.cursor = 'not-allowed';
+      xlBtn.onclick = () => showUpgradeModal();
+    }
   } else {
     btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Export CSV`;
     btn.style.opacity = '1';
     btn.style.cursor = 'pointer';
     btn.onclick = exportCSV;
+    if (xlBtn) {
+      xlBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg> Export Excel`;
+      xlBtn.style.opacity = '1';
+      xlBtn.style.cursor = 'pointer';
+      xlBtn.onclick = exportCSV;
+    }
   }
 }
 
@@ -952,14 +950,10 @@ async function runSearch() {
     return;
   }
 
-  // Free tier gate
-  if (getPlan() === 'free' && getSearchCount() >= FREE_SEARCH_LIMIT) {
+  // Free tier gate (server enforces this too, but fail fast for UX)
+  if (getPlan() === 'free' && serverSearchesUsed >= FREE_SEARCH_LIMIT) {
     showUpgradeModal();
     return;
-  }
-  if (getPlan() === 'free') {
-    incrementSearchCount();
-    updateSearchCounter();
   }
 
   // Hide results, show loading
@@ -1015,18 +1009,13 @@ async function runSearch() {
 
     loading.style.display = 'none';
 
-    // Update search counter from real backend data
+    // Update server-side counts from backend response
     if (data.usage) {
       userPlan = data.usage.plan;
-      const el = document.getElementById('searchCounter');
-      if (el) {
-        if (data.usage.searches_limit === 'unlimited') {
-          el.innerHTML = `<span style="color:var(--accent2);">✦ Pro — Unlimited searches</span>`;
-        } else {
-          const left = Math.max(0, data.usage.searches_limit - data.usage.searches_used);
-          el.innerHTML = `<span style="color:${left <= 1 ? 'var(--orange)' : 'var(--muted)'};">${left} of ${data.usage.searches_limit} free searches remaining</span>`;
-        }
-      }
+      currentPlan = data.usage.plan;
+      serverSearchesUsed = data.usage.searches_used;
+      updateSearchCounter();
+      updateExportButton();
     }
 
     // Map backend fields to frontend expected fields
@@ -1253,9 +1242,11 @@ updateExportButton();
     document.getElementById('userEmail').textContent = user.email;
     document.getElementById('logoutBtn').style.display = 'inline-block';
 
-    // Fetch plan from profiles table and set globally
-    const { data: profile } = await sb.from('profiles').select('plan').eq('id', user.id).single();
-    currentPlan = profile?.plan || 'free';
+    // Fetch plan and search count from profiles table
+    const { data: profile } = await sb.from('profiles').select('plan, searches_used, searches_reset_date').eq('id', user.id).single();
+    currentPlan        = profile?.plan || 'free';
+    serverSearchesUsed = profile?.searches_used || 0;
+    serverResetDate    = profile?.searches_reset_date || null;
 
     const planColors = { free: '#22c55e', pro: '#a78bfa' };
     const planBadge = document.createElement('span');
