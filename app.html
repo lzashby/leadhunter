@@ -626,6 +626,23 @@
   </div>
 </div>
 
+<!-- Feature Locked Modal -->
+<div id="featureModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:999;align-items:center;justify-content:center;">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:40px;max-width:420px;width:90%;text-align:center;position:relative;">
+    <div style="font-size:48px;margin-bottom:12px;">⚡</div>
+    <h2 style="font-size:22px;font-weight:800;margin-bottom:8px;">Pro Feature</h2>
+    <p style="color:var(--muted);font-size:15px;line-height:1.6;margin-bottom:24px;">This feature is only available on the Pro plan.<br>Upgrade to unlock CSV &amp; Excel export, unlimited searches, and up to 100 leads per search.</p>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+      <button onclick="closeFeatureModal()" style="background:transparent;border:1px solid var(--border);color:var(--muted);padding:12px 24px;border-radius:10px;cursor:pointer;font-size:14px;">
+        Maybe later
+      </button>
+      <button onclick="location.href='pricing.html'" style="background:linear-gradient(135deg,var(--accent),#8b5cf6);border:none;color:#fff;padding:12px 28px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:700;">
+        Upgrade to Pro — $49/mo
+      </button>
+    </div>
+  </div>
+</div>
+
 <footer>
   &copy; 2026 LeadHunter &mdash; Find leads anywhere in the world
 </footer>
@@ -898,6 +915,14 @@ function closeModal() {
   document.getElementById('upgradeModal').style.display = 'none';
 }
 
+function showFeatureModal() {
+  document.getElementById('featureModal').style.display = 'flex';
+}
+
+function closeFeatureModal() {
+  document.getElementById('featureModal').style.display = 'none';
+}
+
 function upgradeToPro() {
   closeModal();
   location.href = 'pricing.html';
@@ -912,12 +937,12 @@ function updateExportButton() {
     btn.innerHTML = `🔒 Export CSV <span style="font-size:11px;color:var(--orange);margin-left:4px;">Pro only</span>`;
     btn.style.opacity = '0.5';
     btn.style.cursor = 'not-allowed';
-    btn.onclick = () => showUpgradeModal();
+    btn.onclick = () => showFeatureModal();
     if (xlBtn) {
       xlBtn.innerHTML = `🔒 Export Excel <span style="font-size:11px;color:var(--orange);margin-left:4px;">Pro only</span>`;
       xlBtn.style.opacity = '0.5';
       xlBtn.style.cursor = 'not-allowed';
-      xlBtn.onclick = () => showUpgradeModal();
+      xlBtn.onclick = () => showFeatureModal();
     }
   } else {
     btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Export CSV`;
