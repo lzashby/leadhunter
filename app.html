@@ -1112,8 +1112,10 @@ function renderTable() {
       ? `<a href="${l.website}" target="_blank" class="web-link">${l.website.replace(/^https?:\/\//, '')}</a>`
       : `<span class="badge badge-red">✕ No Website</span>`;
     const emailCell = l.email
-      ? `<span class="email-text">${l.email}</span>`
-      : `<span style="color:#555;font-size:12px;">Not found</span>`;
+      ? (l.emailProbable
+          ? `<span class="email-text" title="Probable email based on website domain">${l.email} <span style="font-size:10px;color:#888;">~probable</span></span>`
+          : `<span class="email-text">${l.email}</span>`)
+      : `<span style="color:#555;font-size:12px;">No website</span>`;
     const yearsText = l.years ? (l.years === 1 ? '1 year' : `${l.years} years`) : 'Unknown';
 
     const socials = l.socials || l.social || {};
@@ -1203,28 +1205,32 @@ function showScorePopup(index, event) {
   circle.style.borderColor = scoreColor;
   circle.style.color = scoreColor;
 
-  document.getElementById('popupScoreLabel').innerHTML = l.scoreExplanation
-    ? l.scoreExplanation.split(' + ').map(r => `• ${r}`).join('<br>')
-    : 'No major gaps detected — this is a competitive lead.';
+  // Score label
+  const scoreLabel = l.score >= 80 ? 'Hot Lead 🔥' : l.score >= 65 ? 'Warm Lead ⚡' : 'Cold Lead';
+  document.getElementById('popupScoreLabel').innerHTML = `<strong style="color:${scoreColor}">${scoreLabel}</strong>`;
 
+  // Gaps
   const gapsEl = document.getElementById('popupGaps');
-  const gapsList = [];
-  if (!l.hasWebsite) gapsList.push('No website detected');
-  if (l.reviews < 10) gapsList.push(`Only ${l.reviews} Google reviews`);
-  if (l.rating && l.rating < 4.0) gapsList.push(`Low rating (${l.rating} stars)`);
-  if (!l.email) gapsList.push('No email address found');
+  const gapsList = l.gaps && l.gaps.length ? l.gaps : [];
+  if (!gapsList.length) {
+    if (!l.hasWebsite) gapsList.push('No website detected');
+    if (l.reviews < 10) gapsList.push(`Only ${l.reviews} Google reviews`);
+    if (l.rating && l.rating < 4.0) gapsList.push(`Low rating (${l.rating}★)`);
+  }
   gapsEl.innerHTML = gapsList.length
     ? gapsList.map(g => `<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;font-size:12px;color:#ccc;"><span style="color:#ef4444;font-weight:700;">✕</span>${g}</div>`).join('')
-    : '<div style="font-size:12px;color:#555;">No major gaps found.</div>';
+    : '<div style="font-size:12px;color:var(--green);">✓ No major gaps — established business.</div>';
 
   document.getElementById('popupSignalsSection').style.display = 'none';
 
-  const tips = [
-    `${l.reviews < 10 ? `They only have ${l.reviews} reviews — offer reputation management.` : 'Their rating could be improved — pitch review generation services.'}`,
-    `Lead with their missing ${!l.hasWebsite ? 'website' : 'online presence'} — it's their biggest gap.`,
-    `Address them by name${l.ownerName ? ` (${l.ownerName.split(' ')[0]})` : ''} in your outreach for a 3× higher reply rate.`,
-    `Call during business hours and mention you found them on Google Maps — it builds instant credibility.`,
-  ];
+  // Outreach tips based on actual data
+  const tips = [];
+  if (!l.hasWebsite) tips.push(`No website = huge opening. Pitch a simple 5-page site and show them what competitors have.`);
+  if (l.reviews < 10) tips.push(`Only ${l.reviews} reviews — offer a review generation campaign. Most local businesses jump at this.`);
+  if (l.rating && l.rating < 4.0) tips.push(`${l.rating}★ rating signals unhappy customers. Pitch reputation management — easy sell.`);
+  if (l.email) tips.push(`Email ${l.email} with a subject line mentioning their business name — personal touches get 3× more replies.`);
+  if (l.phone) tips.push(`Call ${l.phone} and mention you found them on Google Maps — it builds instant credibility.`);
+  tips.push(`Follow up 3 times over 2 weeks. 80% of sales happen after the 2nd contact.`);
   document.getElementById('popupTip').textContent = tips[Math.floor(Math.random() * tips.length)];
 
   // Position near click
