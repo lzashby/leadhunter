@@ -1255,7 +1255,7 @@ updateExportButton();
     const { data: profile } = await sb.from('profiles').select('plan').eq('id', user.id).single();
     currentPlan = profile?.plan || 'free';
 
-    const planColors = { free: '#888', pro: '#a78bfa', agency: '#f97316' };
+    const planColors = { free: '#22c55e', pro: '#a78bfa' };
     const planBadge = document.createElement('span');
     planBadge.textContent = currentPlan.toUpperCase();
     planBadge.style.cssText = `
