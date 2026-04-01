@@ -550,9 +550,9 @@
     <button class="filter-btn active" onclick="setFilter('all', this)">All (<span id="f-all">0</span>)</button>
     <button class="filter-btn" onclick="setFilter('no-website', this)">No Website (<span id="f-noweb">0</span>)</button>
     <button class="filter-btn" onclick="setFilter('has-email', this)">Has Email (<span id="f-email">0</span>)</button>
-    <button class="filter-btn" onclick="setFilter('high-rated', this)">4.5+ Stars (<span id="f-rated">0</span>)</button>
-    <button class="filter-btn" onclick="setFilter('new-biz', this)">New Business (<span id="f-new">0</span>)</button>
-    <button class="filter-btn" onclick="setFilter('low-reviews', this)">Low Reviews (<span id="f-lowrev">0</span>)</button>
+    <button class="filter-btn" onclick="setFilter('low-reviews', this)">Under 10 Reviews (<span id="f-lowrev">0</span>)</button>
+    <button class="filter-btn" onclick="setFilter('under50-reviews', this)">Under 50 Reviews (<span id="f-under50">0</span>)</button>
+    <button class="filter-btn" onclick="setFilter('under4-stars', this)">Under 4★ (<span id="f-under4">0</span>)</button>
   </div>
 
   <div class="table-outer">
@@ -1031,11 +1031,11 @@ function setFilter(f, btn) {
 
 function filteredLeads() {
   switch(activeFilter) {
-    case 'no-website':  return allLeads.filter(l => !l.hasWeb);
-    case 'has-email':   return allLeads.filter(l => l.hasEmail);
-    case 'high-rated':  return allLeads.filter(l => l.rating >= 4.5);
-    case 'new-biz':     return allLeads.filter(l => l.years <= 3);
-    case 'low-reviews': return allLeads.filter(l => l.reviews < 10);
+    case 'no-website':     return allLeads.filter(l => !l.hasWeb);
+    case 'has-email':      return allLeads.filter(l => l.hasEmail);
+    case 'low-reviews':    return allLeads.filter(l => l.reviews < 10);
+    case 'under50-reviews':return allLeads.filter(l => l.reviews < 50);
+    case 'under4-stars':   return allLeads.filter(l => l.rating && l.rating < 4.0);
     default: return allLeads;
   }
 }
@@ -1045,12 +1045,12 @@ function renderResults(niche, city) {
   document.getElementById('resultQuery').textContent = `"${niche} in ${city}"`;
 
   // Filter counts
-  document.getElementById('f-all').textContent    = allLeads.length;
-  document.getElementById('f-noweb').textContent  = allLeads.filter(l=>!l.hasWeb).length;
-  document.getElementById('f-email').textContent  = allLeads.filter(l=>l.hasEmail).length;
-  document.getElementById('f-rated').textContent  = allLeads.filter(l=>l.rating>=4.5).length;
-  document.getElementById('f-new').textContent    = allLeads.filter(l=>l.years<=3).length;
-  document.getElementById('f-lowrev').textContent = allLeads.filter(l=>l.reviews<10).length;
+  document.getElementById('f-all').textContent     = allLeads.length;
+  document.getElementById('f-noweb').textContent   = allLeads.filter(l=>!l.hasWeb).length;
+  document.getElementById('f-email').textContent   = allLeads.filter(l=>l.hasEmail).length;
+  document.getElementById('f-lowrev').textContent  = allLeads.filter(l=>l.reviews<10).length;
+  document.getElementById('f-under50').textContent = allLeads.filter(l=>l.reviews<50).length;
+  document.getElementById('f-under4').textContent  = allLeads.filter(l=>l.rating&&l.rating<4.0).length;
 
   activeFilter = 'all';
   document.querySelectorAll('.filter-btn').forEach((b,i)=>{ b.classList.toggle('active', i===0); });
