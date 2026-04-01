@@ -538,11 +538,7 @@
   <div class="results-header">
     <div class="results-title">Found <span id="resultCount">0</span> leads for <span id="resultQuery">—</span></div>
     <div class="results-actions">
-      <button class="btn-export" id="exportBtn">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Export CSV
-      </button>
-      <button class="btn-export" id="exportExcelBtn" style="border-color:#555;">
+      <button class="btn-export" id="exportExcelBtn">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
         Export Excel
       </button>
@@ -935,31 +931,18 @@ function upgradeToPro() {
 
 function updateExportButton() {
   const plan = getPlan();
-  const btn  = document.getElementById('exportBtn');
-  const xlBtn = document.getElementById('exportExcelBtn');
+  const btn  = document.getElementById('exportExcelBtn');
   if (!btn) return;
   if (plan === 'free') {
-    btn.innerHTML = `🔒 Export CSV <span style="font-size:11px;color:var(--orange);margin-left:4px;">Pro only</span>`;
+    btn.innerHTML = `🔒 Export Excel <span style="font-size:11px;color:var(--orange);margin-left:4px;">Pro only</span>`;
     btn.style.opacity = '0.5';
     btn.style.cursor = 'not-allowed';
     btn.onclick = () => showFeatureModal();
-    if (xlBtn) {
-      xlBtn.innerHTML = `🔒 Export Excel <span style="font-size:11px;color:var(--orange);margin-left:4px;">Pro only</span>`;
-      xlBtn.style.opacity = '0.5';
-      xlBtn.style.cursor = 'not-allowed';
-      xlBtn.onclick = () => showFeatureModal();
-    }
   } else {
-    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Export CSV`;
+    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg> Export Excel`;
     btn.style.opacity = '1';
     btn.style.cursor = 'pointer';
-    btn.onclick = exportCSV;
-    if (xlBtn) {
-      xlBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg> Export Excel`;
-      xlBtn.style.opacity = '1';
-      xlBtn.style.cursor = 'pointer';
-      xlBtn.onclick = exportExcel;
-    }
+    btn.onclick = exportExcel;
   }
 }
 
