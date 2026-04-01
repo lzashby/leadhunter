@@ -546,13 +546,25 @@
   </div>
 
   <div class="filters">
-    <span class="filter-label" style="color:var(--muted);font-size:13px;align-self:center;">Filter:</span>
+    <span style="color:var(--muted);font-size:13px;align-self:center;">Filter:</span>
     <button class="filter-btn active" onclick="setFilter('all', this)">All (<span id="f-all">0</span>)</button>
     <button class="filter-btn" onclick="setFilter('no-website', this)">No Website (<span id="f-noweb">0</span>)</button>
     <button class="filter-btn" onclick="setFilter('has-email', this)">Has Email (<span id="f-email">0</span>)</button>
-    <button class="filter-btn" onclick="setFilter('low-reviews', this)">Under 10 Reviews (<span id="f-lowrev">0</span>)</button>
-    <button class="filter-btn" onclick="setFilter('under50-reviews', this)">Under 50 Reviews (<span id="f-under50">0</span>)</button>
-    <button class="filter-btn" onclick="setFilter('under4-stars', this)">Under 4★ (<span id="f-under4">0</span>)</button>
+  </div>
+
+  <div style="display:flex;gap:24px;flex-wrap:wrap;margin-top:10px;align-items:center;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span style="font-size:12px;color:var(--muted);white-space:nowrap;">Max reviews: <strong id="reviewSliderVal" style="color:var(--text);">Any</strong></span>
+      <input type="range" id="reviewFilter" min="0" max="500" step="10" value="500"
+        style="width:130px;accent-color:var(--accent);"
+        oninput="updateReviewFilter(this.value)">
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span style="font-size:12px;color:var(--muted);white-space:nowrap;">Max rating: <strong id="starSliderVal" style="color:var(--text);">Any</strong></span>
+      <input type="range" id="starFilter" min="1" max="5" step="0.1" value="5"
+        style="width:130px;accent-color:var(--accent);"
+        oninput="updateStarFilter(this.value)">
+    </div>
   </div>
 
   <div class="table-outer">
@@ -1029,15 +1041,32 @@ function setFilter(f, btn) {
   renderTable();
 }
 
+let reviewMax = 500;
+let starMax   = 5;
+
+function updateReviewFilter(val) {
+  reviewMax = parseInt(val);
+  const el = document.getElementById('reviewSliderVal');
+  el.textContent = reviewMax >= 500 ? 'Any' : `${reviewMax}`;
+  renderTable();
+}
+
+function updateStarFilter(val) {
+  starMax = parseFloat(val);
+  const el = document.getElementById('starSliderVal');
+  el.textContent = starMax >= 5 ? 'Any' : `${starMax.toFixed(1)}★`;
+  renderTable();
+}
+
 function filteredLeads() {
-  switch(activeFilter) {
-    case 'no-website':     return allLeads.filter(l => !l.hasWeb);
-    case 'has-email':      return allLeads.filter(l => l.hasEmail);
-    case 'low-reviews':    return allLeads.filter(l => l.reviews < 10);
-    case 'under50-reviews':return allLeads.filter(l => l.reviews < 50);
-    case 'under4-stars':   return allLeads.filter(l => l.rating && l.rating < 4.0);
-    default: return allLeads;
-  }
+  let leads = allLeads;
+  // Button filters
+  if (activeFilter === 'no-website') leads = leads.filter(l => !l.hasWeb);
+  if (activeFilter === 'has-email')  leads = leads.filter(l => l.hasEmail);
+  // Slider filters (apply on top)
+  if (reviewMax < 500) leads = leads.filter(l => l.reviews <= reviewMax);
+  if (starMax   < 5)   leads = leads.filter(l => l.rating && l.rating <= starMax);
+  return leads;
 }
 
 function renderResults(niche, city) {
@@ -1045,14 +1074,16 @@ function renderResults(niche, city) {
   document.getElementById('resultQuery').textContent = `"${niche} in ${city}"`;
 
   // Filter counts
-  document.getElementById('f-all').textContent     = allLeads.length;
-  document.getElementById('f-noweb').textContent   = allLeads.filter(l=>!l.hasWeb).length;
-  document.getElementById('f-email').textContent   = allLeads.filter(l=>l.hasEmail).length;
-  document.getElementById('f-lowrev').textContent  = allLeads.filter(l=>l.reviews<10).length;
-  document.getElementById('f-under50').textContent = allLeads.filter(l=>l.reviews<50).length;
-  document.getElementById('f-under4').textContent  = allLeads.filter(l=>l.rating&&l.rating<4.0).length;
+  document.getElementById('f-all').textContent   = allLeads.length;
+  document.getElementById('f-noweb').textContent  = allLeads.filter(l=>!l.hasWeb).length;
+  document.getElementById('f-email').textContent  = allLeads.filter(l=>l.hasEmail).length;
 
   activeFilter = 'all';
+  reviewMax = 500; starMax = 5;
+  document.getElementById('reviewFilter').value = 500;
+  document.getElementById('starFilter').value = 5;
+  document.getElementById('reviewSliderVal').textContent = 'Any';
+  document.getElementById('starSliderVal').textContent = 'Any';
   document.querySelectorAll('.filter-btn').forEach((b,i)=>{ b.classList.toggle('active', i===0); });
 
   renderTable();
