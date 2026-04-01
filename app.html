@@ -986,7 +986,17 @@ async function runSearch() {
   // Fetch real data from backend
   try {
     const { data: { session } } = await sb.auth.getSession();
-    const res = await fetch(`https://leadhunter-backend-production.up.railway.app/search?niche=${encodeURIComponent(niche)}&city=${encodeURIComponent(city)}&count=${count}`, {
+    const noWebsite  = document.getElementById('filterNoWebsite')?.checked;
+    const hasEmail   = document.getElementById('filterHasEmail')?.checked;
+    const maxReviews = reviewMax < 500 ? reviewMax : null;
+    const maxRating  = starMax   < 5   ? starMax   : null;
+
+    let url = `https://leadhunter-backend-production.up.railway.app/search?niche=${encodeURIComponent(niche)}&city=${encodeURIComponent(city)}&count=${count}`;
+    if (noWebsite)             url += `&noWebsite=true`;
+    if (maxReviews !== null)   url += `&maxReviews=${maxReviews}`;
+    if (maxRating  !== null)   url += `&maxRating=${maxRating}`;
+
+    const res = await fetch(url, {
       headers: { 'Authorization': `Bearer ${session.access_token}` }
     });
     const data = await res.json();
@@ -1057,10 +1067,8 @@ function updateStarFilter(val) {
 
 function filteredLeads() {
   let leads = allLeads;
-  if (document.getElementById('filterNoWebsite')?.checked) leads = leads.filter(l => !l.hasWeb);
-  if (document.getElementById('filterHasEmail')?.checked)  leads = leads.filter(l => l.hasEmail);
-  if (reviewMax < 500) leads = leads.filter(l => l.reviews <= reviewMax);
-  if (starMax   < 5)   leads = leads.filter(l => l.rating && l.rating <= starMax);
+  // Email filter is client-side only (emails found after scraping)
+  if (document.getElementById('filterHasEmail')?.checked) leads = leads.filter(l => l.hasEmail);
   return leads;
 }
 
