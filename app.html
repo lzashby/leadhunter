@@ -561,7 +561,6 @@
         <tr>
           <th>#</th>
           <th>Business</th>
-          <th>Owner</th>
           <th>Phone</th>
           <th>Email</th>
           <th>Website</th>
@@ -1150,7 +1149,6 @@ function renderTable() {
         <div class="biz-name">${l.name}</div>
         <div class="biz-address">${l.address}</div>
       </td>
-      <td style="white-space:nowrap;">${l.ownerName ? `<span style="font-size:13px;color:#ccc;">${l.ownerName}</span>` : `<span style="color:#555;font-size:12px;">—</span>`}</td>
       <td><a href="tel:${l.phone}" class="phone-link">${l.phone}</a></td>
       <td>${emailCell}</td>
       <td>${websiteBadge}</td>
