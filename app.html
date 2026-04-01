@@ -1115,8 +1115,8 @@ function renderTable() {
       ? `<span style="font-weight:700;color:var(--orange);">${l.reviews} <span style="font-size:10px;">LOW</span></span>`
       : `<span style="font-weight:600;">${l.reviews.toLocaleString()}</span>`;
 
-    const scoreColor = l.score >= 80 ? 'var(--green)' : l.score >= 60 ? 'var(--orange)' : 'var(--muted)';
-    const scoreLabel = l.score >= 80 ? 'Hot' : l.score >= 60 ? 'Warm' : 'Cool';
+    const scoreColor = l.score >= 75 ? 'var(--green)' : l.score >= 50 ? 'var(--orange)' : 'var(--muted)';
+    const scoreLabel = l.score >= 75 ? 'Hot' : l.score >= 50 ? 'Warm' : 'Cold';
     const scoreCell = `
       <div style="display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;" onclick="showScorePopup(${i}, event)" title="Click for AI analysis">
         <div style="width:40px;height:40px;border-radius:50%;border:2px solid ${scoreColor};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:${scoreColor};transition:transform 0.15s;" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'">${l.score}</div>
@@ -1210,7 +1210,7 @@ function showScorePopup(index, event) {
   const leads = filteredLeads();
   const l = leads[index];
   const popup = document.getElementById('scorePopup');
-  const scoreColor = l.score >= 80 ? '#22c55e' : l.score >= 60 ? '#f97316' : '#888';
+  const scoreColor = l.score >= 75 ? '#22c55e' : l.score >= 50 ? '#f97316' : '#888';
 
   document.getElementById('popupBizName').textContent = l.name;
 
@@ -1220,7 +1220,7 @@ function showScorePopup(index, event) {
   circle.style.color = scoreColor;
 
   // Score label
-  const scoreLabel = l.score >= 80 ? 'Hot Lead 🔥' : l.score >= 65 ? 'Warm Lead ⚡' : 'Cold Lead';
+  const scoreLabel = l.score >= 75 ? 'Hot Lead 🔥' : l.score >= 50 ? 'Warm Lead ⚡' : 'Cold Lead';
   document.getElementById('popupScoreLabel').innerHTML = `<strong style="color:${scoreColor}">${scoreLabel}</strong>`;
 
   // Gaps
