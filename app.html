@@ -567,7 +567,6 @@
         <tr>
           <th style="width:32px;text-align:center;">#</th>
           <th>Business</th>
-          <th>Ads</th>
           <th>Phone</th>
           <th>Email</th>
           <th>Website</th>
@@ -1155,11 +1154,6 @@ function renderTable() {
       <td>
         <div class="biz-name">${l.name}</div>
         <div class="biz-address">${l.address}</div>
-      </td>
-      <td style="white-space:nowrap;">
-        ${l.hasGoogleAds   ? `<span title="Running Google Ads" style="font-size:11px;font-weight:700;background:rgba(66,133,244,0.15);color:#4285f4;border:1px solid rgba(66,133,244,0.3);padding:2px 6px;border-radius:4px;display:inline-block;margin-bottom:2px;">G Ads</span>` : ''}
-        ${l.hasFacebookAds ? `<span title="Running Facebook Ads" style="font-size:11px;font-weight:700;background:rgba(24,119,242,0.15);color:#1877f2;border:1px solid rgba(24,119,242,0.3);padding:2px 6px;border-radius:4px;display:inline-block;">FB Ads</span>` : ''}
-        ${!l.hasGoogleAds && !l.hasFacebookAds ? `<span style="color:#555;font-size:12px;">—</span>` : ''}
       </td>
       <td><a href="tel:${l.phone}" class="phone-link">${l.phone}</a></td>
       <td>${emailCell}</td>
