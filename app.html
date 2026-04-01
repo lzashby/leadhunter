@@ -310,6 +310,11 @@
     .table-wrap::-webkit-scrollbar-track { background: var(--surface2); border-radius: 4px; }
     .table-wrap::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
     .table-outer { position: relative; }
+    .table-scroll-top { overflow-x: auto; overflow-y: hidden; height: 8px; margin-bottom: 2px; border-radius: 4px; }
+    .table-scroll-top::-webkit-scrollbar { height: 6px; }
+    .table-scroll-top::-webkit-scrollbar-track { background: var(--surface2); border-radius: 4px; }
+    .table-scroll-top::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
+    #tableScrollTopInner { height: 1px; }
     table { width: 100%; border-collapse: collapse; }
     thead { background: var(--surface2); }
     th {
@@ -555,6 +560,7 @@
   </div>
 
   <div class="table-outer">
+  <div class="table-scroll-top" id="tableScrollTop"><div id="tableScrollTopInner"></div></div>
   <div class="table-wrap" id="tableWrap">
     <table>
       <thead>
@@ -1165,9 +1171,24 @@ function renderTable() {
   });
 }
 
-document.getElementById('tableWrap').addEventListener('scroll', function() {
+const tableWrap = document.getElementById('tableWrap');
+const tableScrollTop = document.getElementById('tableScrollTop');
+const tableScrollTopInner = document.getElementById('tableScrollTopInner');
+
+tableWrap.addEventListener('scroll', function() {
   if (this.scrollLeft > 20) this.closest('.table-outer').classList.add('scrolled');
+  tableScrollTop.scrollLeft = this.scrollLeft;
 });
+tableScrollTop.addEventListener('scroll', function() {
+  tableWrap.scrollLeft = this.scrollLeft;
+});
+
+function syncTopScrollbar() {
+  tableScrollTopInner.style.width = tableWrap.scrollWidth + 'px';
+}
+// Sync width after results render
+const origRenderTable = renderTable;
+renderTable = function() { origRenderTable(); syncTopScrollbar(); };
 
 function exportCSV() {
   const leads = filteredLeads();
