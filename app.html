@@ -958,7 +958,7 @@ function updateExportButton() {
       xlBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg> Export Excel`;
       xlBtn.style.opacity = '1';
       xlBtn.style.cursor = 'pointer';
-      xlBtn.onclick = exportCSV;
+      xlBtn.onclick = exportExcel;
     }
   }
 }
@@ -1188,23 +1188,37 @@ function syncTopScrollbar() {
 const origRenderTable = renderTable;
 renderTable = function() { origRenderTable(); syncTopScrollbar(); };
 
-function exportCSV() {
+function getExportRows() {
   const leads = filteredLeads();
-  const rows = [['#','Business Name','Address','Phone','Email','Website','Rating','Reviews','Years in Business','Founded','Has Website']];
-  leads.forEach((l,i) => {
+  const rows = [['#','Business Name','Address','Phone','Email','Website','Rating','Reviews','Has Website','Lead Score']];
+  leads.forEach((l, i) => {
     rows.push([
-      i+1, l.name, l.address, l.phone,
+      i + 1, l.name, l.address, l.phone || '',
       l.email || '', l.website || '',
-      l.rating, l.reviews, l.years, l.founded,
-      l.hasWeb ? 'Yes' : 'No'
+      l.rating || '', l.reviews || 0,
+      l.hasWeb ? 'Yes' : 'No', l.score
     ]);
   });
-  const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
-  const blob = new Blob([csv], { type: 'text/csv' });
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a'); a.href = url;
-  a.download = `leads-export.csv`; a.click();
-  URL.revokeObjectURL(url);
+  return rows;
+}
+
+function exportCSV() {
+  const rows = getExportRows();
+  const csv  = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const a    = document.createElement('a');
+  a.href     = URL.createObjectURL(blob);
+  a.download = 'leads-export.csv';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function exportExcel() {
+  const rows = getExportRows();
+  const ws   = XLSX.utils.aoa_to_sheet(rows);
+  const wb   = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Leads');
+  XLSX.writeFile(wb, 'leads-export.xlsx');
 }
 
 // ── Score popup ───────────────────────────────────────────────────────────────
@@ -1274,6 +1288,7 @@ updateExportButton();
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
   const { createClient } = supabase;
   const sb = createClient(
