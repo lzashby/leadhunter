@@ -938,6 +938,7 @@ function updateExportButton() {
 
 // ── State ─────────────────────────────────────────────────────────────────────
 let allLeads = [];
+let searchPerformed = false;
 
 function fillSearch(niche, city) {
   document.getElementById('nicheInput').value = niche;
@@ -1038,6 +1039,7 @@ async function runSearch() {
       years:    null,
       social:   l.social || {},
     }));
+    searchPerformed = true;
 
     renderResults(niche, city);
 
@@ -1100,7 +1102,7 @@ function renderTable() {
   const tbody = document.getElementById('resultsBody');
   tbody.innerHTML = '';
 
-  if (leads.length === 0 && allLeads.length > 0) {
+  if (leads.length === 0 && searchPerformed) {
     // Build a list of active filters to explain what's filtering results out
     const activeFilters = [];
     const noWebsiteChecked = document.getElementById('filterNoWebsite')?.checked;
