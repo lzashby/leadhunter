@@ -519,11 +519,11 @@
       <div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;">Filters <span style="font-size:11px;color:#555;text-transform:none;letter-spacing:0;">(applied to results)</span></div>
       <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:center;">
         <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
-          <input type="checkbox" id="filterNoWebsite" style="accent-color:var(--accent);width:15px;height:15px;">
+          <input type="checkbox" id="filterNoWebsite" style="accent-color:var(--accent);width:15px;height:15px;" onchange="updateFilterHint();renderTable();">
           <span style="font-size:13px;color:var(--text);">No website only</span>
         </label>
         <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
-          <input type="checkbox" id="filterHasEmail" style="accent-color:var(--accent);width:15px;height:15px;">
+          <input type="checkbox" id="filterHasEmail" style="accent-color:var(--accent);width:15px;height:15px;" onchange="updateFilterHint();renderTable();">
           <span style="font-size:13px;color:var(--text);">Has email only</span>
         </label>
         <div style="display:flex;align-items:center;gap:8px;">
@@ -535,6 +535,7 @@
           <input type="range" id="starFilter" min="1" max="5" step="0.1" value="5" style="width:110px;accent-color:var(--accent);" oninput="updateStarFilter(this.value)">
         </div>
       </div>
+      <div id="filterHint" style="display:none;margin-top:10px;font-size:12px;color:#f59e0b;">⚠️ Strict filters may return fewer results — especially in large cities where most businesses have websites.</div>
     </div>
   </div>
 
@@ -1053,15 +1054,25 @@ function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 let reviewMax = 500;
 let starMax   = 5;
 
+function updateFilterHint() {
+  const noWebsite = document.getElementById('filterNoWebsite')?.checked;
+  const hasEmail  = document.getElementById('filterHasEmail')?.checked;
+  const anyActive = noWebsite || hasEmail || reviewMax < 500 || starMax < 5;
+  const hint = document.getElementById('filterHint');
+  if (hint) hint.style.display = anyActive ? 'block' : 'none';
+}
+
 function updateReviewFilter(val) {
   reviewMax = parseInt(val);
   document.getElementById('reviewSliderVal').textContent = reviewMax >= 500 ? 'Any' : reviewMax;
+  updateFilterHint();
   renderTable();
 }
 
 function updateStarFilter(val) {
   starMax = parseFloat(val);
   document.getElementById('starSliderVal').textContent = starMax >= 5 ? 'Any' : `${starMax.toFixed(1)}★`;
+  updateFilterHint();
   renderTable();
 }
 
@@ -1088,6 +1099,30 @@ function renderTable() {
   const leads = filteredLeads();
   const tbody = document.getElementById('resultsBody');
   tbody.innerHTML = '';
+
+  if (leads.length === 0 && allLeads.length > 0) {
+    // Build a list of active filters to explain what's filtering results out
+    const activeFilters = [];
+    const noWebsiteChecked = document.getElementById('filterNoWebsite')?.checked;
+    const hasEmailChecked  = document.getElementById('filterHasEmail')?.checked;
+    if (noWebsiteChecked)        activeFilters.push('no website only');
+    if (hasEmailChecked)         activeFilters.push('has email only');
+    if (reviewMax < 500)         activeFilters.push(`max ${reviewMax} reviews`);
+    if (starMax   < 5)           activeFilters.push(`max ${starMax.toFixed(1)}★ rating`);
+
+    const filterText = activeFilters.length
+      ? `Your active filters (${activeFilters.join(', ')}) may be too strict for this area.`
+      : 'Try adjusting your search.';
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td colspan="7" style="text-align:center;padding:48px 24px;">
+      <div style="font-size:28px;margin-bottom:12px;">🔍</div>
+      <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:8px;">No results found</div>
+      <div style="font-size:13px;color:var(--muted);max-width:400px;margin:0 auto;line-height:1.6;">${filterText} Try removing a filter or searching a different location.</div>
+    </td>`;
+    tbody.appendChild(tr);
+    return;
+  }
 
   leads.forEach((l, i) => {
     const stars = '★'.repeat(Math.floor(l.rating)) + (l.rating % 1 >= 0.5 ? '½' : '');
