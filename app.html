@@ -510,6 +510,7 @@
     <a href="about.html" style="color:#888;text-decoration:none;font-size:14px;">About</a>
   </div>
   <div class="nav-right">
+    <a href="saved.html" style="color:#f59e0b;font-size:14px;text-decoration:none;display:flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid #2a2a1e;border-radius:8px;position:relative;" onmouseover="this.style.borderColor='#f59e0b'" onmouseout="this.style.borderColor='#2a2a1e'">★ Saved Leads<span id="navSavedBadge" style="display:none;background:#f59e0b;color:#000;font-size:10px;font-weight:700;padding:1px 5px;border-radius:10px;margin-left:2px;">0</span></a>
     <a href="niches.html" style="color:#a855f7;font-size:14px;text-decoration:none;display:flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid #2a2a3e;border-radius:8px;" onmouseover="this.style.borderColor='#a855f7'" onmouseout="this.style.borderColor='#2a2a3e'">🗺️ Niche & City Explorer</a>
     <!-- Profile avatar button -->
     <button id="profileBtn" onclick="toggleProfilePanel()" style="display:none;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:5px 12px 5px 5px;border-radius:40px;cursor:pointer;font-size:13px;font-weight:600;flex-shrink:0;transition:border-color 0.2s,box-shadow 0.2s;" onmouseover="this.style.borderColor='var(--accent)';this.style.boxShadow='0 0 0 3px rgba(108,99,255,0.15)'" onmouseout="this.style.borderColor='var(--border)';this.style.boxShadow='none'">
@@ -1244,13 +1245,13 @@ async function toggleSaveLead(btn, idx) {
 }
 
 function updateSavedCount() {
+  const n = savedLeadsData.length;
   const badge = document.getElementById('savedCountBadge');
-  if (badge) {
-    badge.textContent = savedLeadsData.length;
-    badge.style.display = savedLeadsData.length > 0 ? 'inline-block' : 'none';
-  }
+  if (badge) { badge.textContent = n; badge.style.display = n > 0 ? 'inline-block' : 'none'; }
   const profileCount = document.getElementById('profileSavedCount');
-  if (profileCount) profileCount.textContent = savedLeadsData.length;
+  if (profileCount) profileCount.textContent = n;
+  const navBadge = document.getElementById('navSavedBadge');
+  if (navBadge) { navBadge.textContent = n; navBadge.style.display = n > 0 ? 'inline-block' : 'none'; }
 }
 
 // ── Profile panel ──────────────────────────────────────────────────────────

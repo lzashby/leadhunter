@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Saved Leads — LeadHunter</title>
+  <meta name="robots" content="noindex">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #0d0d0d; --surface: #161616; --surface2: #1e1e1e;
+      --border: #2a2a2a; --accent: #6c63ff; --accent2: #a78bfa;
+      --green: #22c55e; --red: #ef4444; --orange: #f97316;
+      --text: #f1f1f1; --muted: #888;
+    }
+    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
+
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 40px; border-bottom: 1px solid var(--border);
+      background: var(--surface); position: sticky; top: 0; z-index: 100;
+    }
+    .logo { font-size: 20px; font-weight: 800; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; }
+
+    .page-wrap { max-width: 1400px; margin: 0 auto; padding: 36px 24px; }
+
+    .page-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 24px; flex-wrap: wrap; gap: 12px;
+    }
+    .page-title { font-size: 24px; font-weight: 800; }
+    .page-title span { color: var(--accent2); }
+
+    .btn-export {
+      background: var(--surface); border: 1px solid var(--border);
+      color: var(--text); padding: 8px 16px; border-radius: 8px;
+      cursor: pointer; font-size: 13px; display: flex; align-items: center;
+      gap: 6px; transition: border-color 0.2s; text-decoration: none;
+    }
+    .btn-export:hover { border-color: var(--green); color: var(--green); }
+
+    .table-wrap {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; overflow-x: auto;
+    }
+    table { width: 100%; border-collapse: collapse; }
+    thead { background: var(--surface2); }
+    th {
+      padding: 10px 14px; text-align: left; font-size: 11px;
+      text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted);
+      border-bottom: 1px solid var(--border); white-space: nowrap;
+    }
+    td { padding: 12px 14px; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+
+    .biz-name { font-weight: 600; }
+    .biz-address { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .badge-red { background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid rgba(239,68,68,0.2); padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+    .web-link, .phone-link { color: var(--accent2); text-decoration: none; font-size: 13px; }
+    .web-link:hover, .phone-link:hover { text-decoration: underline; }
+    .stars { color: #f59e0b; font-size: 13px; }
+
+    .note-input {
+      width: 100%; background: var(--surface2); border: 1px solid var(--border);
+      color: var(--text); border-radius: 6px; padding: 7px 10px; font-size: 12px;
+      font-family: inherit; resize: vertical; min-height: 44px; max-height: 120px;
+      transition: border-color 0.2s;
+    }
+    .note-input:focus { outline: none; border-color: var(--accent); }
+
+    .remove-btn {
+      background: none; border: none; color: #444; cursor: pointer;
+      font-size: 18px; padding: 2px 6px; border-radius: 4px;
+      transition: color 0.15s;
+    }
+    .remove-btn:hover { color: var(--red); }
+
+    .empty-state {
+      text-align: center; padding: 80px 24px;
+    }
+    .empty-state .icon { font-size: 48px; margin-bottom: 16px; }
+    .empty-state h2 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+    .empty-state p { color: var(--muted); font-size: 14px; margin-bottom: 24px; line-height: 1.6; }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #8b5cf6);
+      border: none; color: #fff; padding: 12px 28px; border-radius: 10px;
+      cursor: pointer; font-size: 14px; font-weight: 700; text-decoration: none;
+      display: inline-block;
+    }
+    .btn-primary:hover { opacity: 0.88; }
+
+    .copy-btn {
+      background: none; border: none; cursor: pointer; padding: 2px 5px;
+      color: #555; border-radius: 4px; font-size: 11px; transition: color 0.15s;
+    }
+    .copy-btn:hover { color: var(--accent2); }
+    .copy-btn.copied { color: var(--green); }
+
+    @media (max-width: 600px) {
+      nav { padding: 12px 16px; }
+      .page-wrap { padding: 20px 12px; }
+      table th:nth-child(5), table td:nth-child(5),
+      table th:nth-child(6), table td:nth-child(6) { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="app.html">⚡ LeadHunter</a>
+  <div style="font-size:15px;font-weight:700;color:var(--text);">★ Saved Leads</div>
+  <div style="display:flex;gap:10px;align-items:center;">
+    <button id="exportBtn" onclick="exportExcel()" style="display:none;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;" onmouseover="this.style.borderColor='#22c55e';this.style.color='#22c55e'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text)'">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+      Export Excel
+    </button>
+    <a href="app.html" style="background:linear-gradient(135deg,var(--accent),#8b5cf6);border:none;color:#fff;padding:8px 18px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;text-decoration:none;">← Back to App</a>
+  </div>
+</nav>
+
+<div class="page-wrap">
+  <div class="page-header">
+    <div>
+      <div class="page-title">★ Saved Leads <span id="savedCountTitle"></span></div>
+      <div style="font-size:13px;color:var(--muted);margin-top:4px;">Your bookmarked leads — add notes as you contact them.</div>
+    </div>
+  </div>
+
+  <div id="loadingState" style="text-align:center;padding:60px;color:var(--muted);font-size:14px;">Loading your saved leads...</div>
+
+  <div id="tableContainer" style="display:none;">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:32px;text-align:center;">#</th>
+            <th>Business</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th>Website</th>
+            <th>Rating</th>
+            <th>Reviews</th>
+            <th>Notes</th>
+            <th style="width:40px;"></th>
+          </tr>
+        </thead>
+        <tbody id="savedBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="emptyState" style="display:none;" class="empty-state">
+    <div class="icon">★</div>
+    <h2>No saved leads yet</h2>
+    <p>Find businesses you want to reach out to and click ☆ to save them here.<br>You can add notes and track your outreach as you go.</p>
+    <a href="app.html" class="btn-primary">← Find Leads</a>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script>
+const { createClient } = supabase;
+const sb = createClient(
+  'https://hysngrxzysorzxlbytjq.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh5c25ncnh6eXNvcnp4bGJ5dGpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyNTMzNTMsImV4cCI6MjA4OTgyOTM1M30.sG4g5WhReJqSe7kUES9g8AVrzh83QvGMRUg5kT0whJ8'
+);
+
+let savedLeads = [];
+
+sb.auth.getSession().then(async ({ data }) => {
+  if (!data.session) { location.href = 'login.html'; return; }
+
+  const userId = data.session.user.id;
+  const { data: rows } = await sb.from('saved_leads')
+    .select('*')
+    .eq('user_id', userId)
+    .order('saved_at', { ascending: false });
+
+  document.getElementById('loadingState').style.display = 'none';
+
+  if (!rows || rows.length === 0) {
+    document.getElementById('emptyState').style.display = 'block';
+    return;
+  }
+
+  savedLeads = rows;
+  document.getElementById('tableContainer').style.display = 'block';
+  document.getElementById('exportBtn').style.display = 'flex';
+  document.getElementById('savedCountTitle').textContent = `(${rows.length})`;
+  renderTable();
+});
+
+function renderTable() {
+  const tbody = document.getElementById('savedBody');
+  tbody.innerHTML = '';
+  savedLeads.forEach((l, i) => {
+    const stars = l.rating ? '★'.repeat(Math.floor(l.rating)) : '';
+    const websiteBadge = l.website
+      ? `<a href="${l.website}" target="_blank" class="web-link">${l.website.replace(/^https?:\/\//,'')}</a>`
+      : `<span class="badge-red">✕ No Website</span>`;
+    const emailCell = l.email
+      ? `<div style="display:flex;align-items:center;gap:5px;"><a href="mailto:${l.email}" style="color:#aaa;font-size:13px;text-decoration:none;">${l.email}</a><button class="copy-btn" onclick="copyEmail(this,'${l.email}')" title="Copy">⎘</button></div>`
+      : `<span style="color:#555;">—</span>`;
+
+    const tr = document.createElement('tr');
+    tr.dataset.id = l.id;
+    tr.innerHTML = `
+      <td style="color:var(--muted);text-align:center;">${i+1}</td>
+      <td>
+        <div class="biz-name">${l.biz_name}</div>
+        <div class="biz-address">${l.biz_address}</div>
+      </td>
+      <td>${l.phone ? `<a href="tel:${l.phone}" class="phone-link">${l.phone}</a>` : '<span style="color:#555;">—</span>'}</td>
+      <td>${emailCell}</td>
+      <td>${websiteBadge}</td>
+      <td>${l.rating ? `<span class="stars">${stars}</span> <span style="font-size:12px;color:var(--muted);">${l.rating}</span>` : '<span style="color:#555;">—</span>'}</td>
+      <td style="font-weight:600;">${l.reviews ? l.reviews.toLocaleString() : '—'}</td>
+      <td style="min-width:180px;"><textarea class="note-input" placeholder="Add a note..." onblur="saveNote('${l.id}', this.value)">${l.note || ''}</textarea></td>
+      <td><button class="remove-btn" onclick="removeLead('${l.id}', this)" title="Remove">×</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function copyEmail(btn, email) {
+  navigator.clipboard.writeText(email).then(() => {
+    btn.textContent = '✓'; btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '⎘'; btn.classList.remove('copied'); }, 1500);
+  });
+}
+
+async function saveNote(id, text) {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) return;
+  await sb.from('saved_leads').update({ note: text }).eq('id', id).eq('user_id', session.user.id);
+  const lead = savedLeads.find(l => l.id === id);
+  if (lead) lead.note = text;
+}
+
+async function removeLead(id, btn) {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) return;
+  await sb.from('saved_leads').delete().eq('id', id).eq('user_id', session.user.id);
+  savedLeads = savedLeads.filter(l => l.id !== id);
+  const row = btn.closest('tr');
+  row.style.transition = 'opacity 0.2s';
+  row.style.opacity = '0';
+  setTimeout(() => {
+    row.remove();
+    document.getElementById('savedCountTitle').textContent = savedLeads.length ? `(${savedLeads.length})` : '';
+    if (!savedLeads.length) {
+      document.getElementById('tableContainer').style.display = 'none';
+      document.getElementById('exportBtn').style.display = 'none';
+      document.getElementById('emptyState').style.display = 'block';
+    }
+    // Re-number rows
+    document.querySelectorAll('#savedBody tr').forEach((tr, i) => {
+      tr.querySelector('td:first-child').textContent = i + 1;
+    });
+  }, 200);
+}
+
+function exportExcel() {
+  const rows = [['#','Business','Address','Phone','Email','Website','Rating','Reviews','Notes']];
+  savedLeads.forEach((l, i) => rows.push([
+    i+1, l.biz_name, l.biz_address, l.phone||'', l.email||'',
+    l.website||'', l.rating||'', l.reviews||0, l.note||''
+  ]));
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Saved Leads');
+  XLSX.writeFile(wb, 'saved-leads.xlsx');
+}
+</script>
+</body>
+</html>
