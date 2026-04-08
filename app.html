@@ -512,8 +512,10 @@
   <div class="nav-right">
     <a href="niches.html" style="color:#a855f7;font-size:14px;text-decoration:none;display:flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid #2a2a3e;border-radius:8px;" onmouseover="this.style.borderColor='#a855f7'" onmouseout="this.style.borderColor='#2a2a3e'">🗺️ Niche & City Explorer</a>
     <!-- Profile avatar button -->
-    <button id="profileBtn" onclick="toggleProfilePanel()" style="display:none;background:linear-gradient(135deg,var(--accent),#8b5cf6);border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:14px;font-weight:700;color:#fff;flex-shrink:0;position:relative;" title="Account">
-      <span id="profileInitial">?</span>
+    <button id="profileBtn" onclick="toggleProfilePanel()" style="display:none;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:5px 12px 5px 5px;border-radius:40px;cursor:pointer;font-size:13px;font-weight:600;flex-shrink:0;transition:border-color 0.2s,box-shadow 0.2s;" onmouseover="this.style.borderColor='var(--accent)';this.style.boxShadow='0 0 0 3px rgba(108,99,255,0.15)'" onmouseout="this.style.borderColor='var(--border)';this.style.boxShadow='none'">
+      <span id="profileInitial" style="width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0;">?</span>
+      <span style="font-size:13px;">Account</span>
+      <span style="color:var(--muted);font-size:10px;margin-left:2px;">▾</span>
     </button>
   </div>
 </nav>
@@ -1785,8 +1787,6 @@ updateExportButton();
     // Show profile button
     const profileBtn = document.getElementById('profileBtn');
     profileBtn.style.display = 'flex';
-    profileBtn.style.alignItems = 'center';
-    profileBtn.style.justifyContent = 'center';
     document.getElementById('profileInitial').textContent = (user.email || '?')[0].toUpperCase();
 
     // Fetch plan and search count from profiles table
