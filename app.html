@@ -4,6 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LeadHunter — Find Business Leads Instantly</title>
+  <meta name="description" content="Search any business type in any city worldwide. Get names, phones, emails, websites, ratings and more — exported in seconds.">
+  <meta name="robots" content="noindex">
+  <meta property="og:title" content="LeadHunter — Find Business Leads Instantly">
+  <meta property="og:description" content="Find 100 local business leads in any city, instantly.">
+  <meta property="og:type" content="website">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -356,6 +361,21 @@
     .phone-link, .web-link { color: var(--accent2); text-decoration: none; font-size: 13px; }
     .phone-link:hover, .web-link:hover { text-decoration: underline; }
     .email-text { font-size: 13px; color: #aaa; }
+    .email-cell { display:flex; align-items:center; gap:6px; }
+    .copy-btn {
+      background: none; border: none; cursor: pointer; padding: 2px 5px;
+      color: #555; border-radius: 4px; font-size: 11px; transition: color 0.15s, background 0.15s;
+      flex-shrink: 0;
+    }
+    .copy-btn:hover { color: var(--accent2); background: rgba(108,99,255,0.1); }
+    .copy-btn.copied { color: var(--green); }
+    .save-btn {
+      background: none; border: none; cursor: pointer; font-size: 16px;
+      padding: 2px 4px; border-radius: 4px; transition: transform 0.15s;
+      line-height: 1; color: #444;
+    }
+    .save-btn:hover { transform: scale(1.2); }
+    .save-btn.saved { color: #f59e0b; }
 
     /* Loading */
     #loading {
@@ -446,8 +466,36 @@
 
     @media (max-width: 600px) {
       .search-row { grid-template-columns: 1fr; }
-      nav { padding: 12px 20px; }
-      .hero { padding: 40px 20px 32px; }
+      nav { padding: 12px 16px; }
+      .hero { padding: 32px 16px 24px; }
+      .hero h1 { font-size: 28px; }
+      .hero p { font-size: 15px; }
+      .search-card { padding: 20px 16px; }
+      .slider-row { flex-direction: column; align-items: flex-start; gap: 10px; }
+      .slider-wrap { width: 100%; }
+      .btn-search { width: 100%; justify-content: center; }
+      #results-section { padding: 0 12px; }
+      .results-header { flex-direction: column; align-items: flex-start; }
+      .results-actions { width: 100%; }
+      .results-actions .btn-export { flex: 1; justify-content: center; }
+      /* Hide less important columns on mobile */
+      table th:nth-child(6),
+      table td:nth-child(6),
+      table th:nth-child(7),
+      table td:nth-child(7) { display: none; }
+    }
+
+    /* Skeleton loading animation */
+    @keyframes shimmer {
+      0% { background-position: -400px 0; }
+      100% { background-position: 400px 0; }
+    }
+    .skeleton-line {
+      background: linear-gradient(90deg, var(--surface2) 25%, var(--border) 50%, var(--surface2) 75%);
+      background-size: 400px 100%;
+      animation: shimmer 1.4s ease-in-out infinite;
+      border-radius: 4px;
+      display: inline-block;
     }
   </style>
 </head>
@@ -500,6 +548,9 @@
       <span class="chip" onclick="fillSearch('Electricians','Dubai')">Electricians in Dubai</span>
       <span class="chip" onclick="fillSearch('Law Firms','Toronto')">Law Firms in Toronto</span>
     </div>
+    <div id="recentSearches" style="display:none;margin-top:10px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+      <span class="suggestion-label">Recent:</span>
+    </div>
 
     <!-- Leads slider -->
     <div class="slider-row">
@@ -550,11 +601,33 @@
 </section>
 
 <!-- Loading -->
-<div id="loading">
-  <div class="spinner"></div>
-  <div class="loading-text" id="loadingText">Searching Google Maps...</div>
-  <div class="loading-sub" id="loadingSub">Finding businesses in your area</div>
-  <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+<div id="loading" style="max-width:1600px;margin:32px auto;padding:0 20px;">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;">
+    <!-- Status bar -->
+    <div style="padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;">
+      <div class="spinner" style="width:20px;height:20px;border-width:2px;flex-shrink:0;"></div>
+      <div>
+        <div class="loading-text" id="loadingText" style="font-size:14px;font-weight:600;">Searching Google Maps...</div>
+        <div class="loading-sub" id="loadingSub" style="font-size:12px;color:var(--muted);margin-top:2px;">Finding businesses in your area</div>
+      </div>
+      <div class="progress-wrap" style="flex:1;margin:0;"><div class="progress-bar" id="progressBar"></div></div>
+    </div>
+    <!-- Skeleton rows -->
+    <table style="width:100%;border-collapse:collapse;">
+      <thead style="background:var(--surface2);">
+        <tr>
+          <th style="padding:10px 12px;width:32px;"></th>
+          <th style="padding:10px 12px;text-align:left;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">Business</th>
+          <th style="padding:10px 12px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">Phone</th>
+          <th style="padding:10px 12px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">Email</th>
+          <th style="padding:10px 12px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">Website</th>
+          <th style="padding:10px 12px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">Rating</th>
+          <th style="padding:10px 12px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">Reviews</th>
+        </tr>
+      </thead>
+      <tbody id="skeletonBody"></tbody>
+    </table>
+  </div>
 </div>
 
 <!-- Results -->
@@ -562,6 +635,9 @@
   <div class="results-header">
     <div class="results-title">Found <span id="resultCount">0</span> leads for <span id="resultQuery">—</span></div>
     <div class="results-actions">
+      <button class="btn-export" onclick="toggleSavedPanel()" title="View saved leads" style="position:relative;">
+        ★ Saved <span id="savedCountBadge" style="display:none;background:var(--accent);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;margin-left:4px;">0</span>
+      </button>
       <button class="btn-export" id="exportExcelBtn">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
         Export Excel
@@ -587,6 +663,7 @@
           <th>Website</th>
           <th>Rating</th>
           <th>Reviews</th>
+          <th style="width:40px;text-align:center;" title="Save lead">💾</th>
         </tr>
       </thead>
       <tbody id="resultsBody"></tbody>
@@ -633,6 +710,43 @@
     </div>
   </div>
 </div>
+
+<!-- Welcome Modal (shown once to new users) -->
+<div id="welcomeModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:1000;align-items:center;justify-content:center;">
+  <div style="background:var(--surface);border:1px solid rgba(108,99,255,0.4);border-radius:20px;padding:40px;max-width:480px;width:90%;text-align:center;position:relative;">
+    <div style="font-size:48px;margin-bottom:12px;">⚡</div>
+    <h2 style="font-size:24px;font-weight:800;margin-bottom:8px;">Welcome to LeadHunter!</h2>
+    <p style="color:var(--muted);font-size:14px;margin-bottom:28px;line-height:1.7;">Here's how to get started in 3 steps:</p>
+    <div style="text-align:left;display:flex;flex-direction:column;gap:16px;margin-bottom:28px;">
+      <div style="display:flex;gap:14px;align-items:flex-start;">
+        <div style="background:rgba(108,99,255,0.2);border:1px solid rgba(108,99,255,0.4);color:var(--accent2);font-weight:800;font-size:14px;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</div>
+        <div><div style="font-weight:600;margin-bottom:2px;">Enter a business type & city</div><div style="font-size:13px;color:var(--muted);">e.g. "Plumbers" in "Sydney" — works for any niche, any city worldwide.</div></div>
+      </div>
+      <div style="display:flex;gap:14px;align-items:flex-start;">
+        <div style="background:rgba(108,99,255,0.2);border:1px solid rgba(108,99,255,0.4);color:var(--accent2);font-weight:800;font-size:14px;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</div>
+        <div><div style="font-weight:600;margin-bottom:2px;">Review your leads</div><div style="font-size:13px;color:var(--muted);">Get names, phones, emails, ratings & websites. Use filters to find the best opportunities.</div></div>
+      </div>
+      <div style="display:flex;gap:14px;align-items:flex-start;">
+        <div style="background:rgba(108,99,255,0.2);border:1px solid rgba(108,99,255,0.4);color:var(--accent2);font-weight:800;font-size:14px;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</div>
+        <div><div style="font-weight:600;margin-bottom:2px;">Save & reach out</div><div style="font-size:13px;color:var(--muted);">Click ☆ to save your best leads and add notes as you contact them.</div></div>
+      </div>
+    </div>
+    <button onclick="closeWelcomeModal()" style="background:linear-gradient(135deg,var(--accent),#8b5cf6);border:none;color:#fff;padding:14px 36px;border-radius:10px;cursor:pointer;font-size:15px;font-weight:700;width:100%;">
+      Let's find some leads →
+    </button>
+    <p style="margin-top:12px;font-size:12px;color:#555;">You have 5 free searches this month. No credit card needed.</p>
+  </div>
+</div>
+
+<!-- Saved Leads Panel -->
+<div id="savedPanel" style="display:none;position:fixed;top:0;right:0;width:min(420px,100vw);height:100vh;background:var(--surface);border-left:1px solid var(--border);z-index:500;overflow-y:auto;box-shadow:-8px 0 32px rgba(0,0,0,0.5);">
+  <div style="padding:20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+    <div style="font-size:16px;font-weight:700;">★ Saved Leads</div>
+    <button onclick="toggleSavedPanel()" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1;">×</button>
+  </div>
+  <div id="savedPanelBody" style="padding:16px;"></div>
+</div>
+<div id="savedPanelBackdrop" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:499;" onclick="toggleSavedPanel()"></div>
 
 <footer>
   &copy; 2026 LeadHunter &mdash; Find leads anywhere in the world
@@ -919,6 +1033,17 @@ function upgradeToPro() {
   location.href = 'pricing.html';
 }
 
+function closeWelcomeModal() {
+  document.getElementById('welcomeModal').style.display = 'none';
+  localStorage.setItem('lh_welcomed', '1');
+}
+
+function maybeShowWelcomeModal(isNewUser) {
+  if (!localStorage.getItem('lh_welcomed') && isNewUser) {
+    document.getElementById('welcomeModal').style.display = 'flex';
+  }
+}
+
 function updateExportButton() {
   const plan = getPlan();
   const btn  = document.getElementById('exportExcelBtn');
@@ -939,6 +1064,218 @@ function updateExportButton() {
 // ── State ─────────────────────────────────────────────────────────────────────
 let allLeads = [];
 let searchPerformed = false;
+let savedLeadIds  = new Set();
+let savedLeadsData = [];
+let leadNotes = {};  // key: "name|address" → note string
+
+// ── Search history ─────────────────────────────────────────────────────────
+let recentSearches = [];
+
+async function loadSearchHistory() {
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) return;
+    const { data } = await sb.from('search_history')
+      .select('niche,city')
+      .eq('user_id', session.user.id)
+      .order('searched_at', { ascending: false })
+      .limit(6);
+    if (data && data.length) {
+      recentSearches = data;
+      renderRecentSearches();
+    }
+  } catch (_) {}
+}
+
+function renderRecentSearches() {
+  const wrap = document.getElementById('recentSearches');
+  if (!wrap || !recentSearches.length) return;
+  wrap.style.display = 'flex';
+  const chips = recentSearches.map(s =>
+    `<span class="chip" onclick="fillSearch('${s.niche.replace(/'/g,"\\'")}','${s.city.replace(/'/g,"\\'")}');runSearch()" style="background:rgba(108,99,255,0.1);border-color:rgba(108,99,255,0.3);color:var(--accent2);">${s.niche} in ${s.city}</span>`
+  ).join('');
+  // Keep the label, replace the chips
+  const label = wrap.querySelector('.suggestion-label');
+  wrap.innerHTML = '';
+  if (label) wrap.appendChild(label);
+  wrap.insertAdjacentHTML('beforeend', chips);
+}
+
+async function saveSearchHistory(niche, city) {
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) return;
+    await sb.from('search_history').insert({
+      user_id:     session.user.id,
+      niche,
+      city,
+      searched_at: new Date().toISOString(),
+    });
+    // Update local list
+    recentSearches = recentSearches.filter(s => !(s.niche === niche && s.city === city));
+    recentSearches.unshift({ niche, city });
+    recentSearches = recentSearches.slice(0, 6);
+    renderRecentSearches();
+  } catch (_) {}
+}
+
+function copyEmail(btn, email) {
+  navigator.clipboard.writeText(email).then(() => {
+    btn.textContent = '✓';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '⎘'; btn.classList.remove('copied'); }, 1500);
+  });
+}
+
+async function toggleSaveLead(btn, idx) {
+  const lead = filteredLeads()[idx];
+  if (!lead) return;
+  const key = lead.name + '|' + lead.address;
+
+  if (savedLeadIds.has(key)) {
+    // Unsave
+    savedLeadIds.delete(key);
+    savedLeadsData = savedLeadsData.filter(l => (l.name + '|' + l.address) !== key);
+    btn.textContent = '☆';
+    btn.classList.remove('saved');
+    // Remove from Supabase
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      if (session) {
+        await sb.from('saved_leads').delete()
+          .eq('user_id', session.user.id)
+          .eq('biz_name', lead.name)
+          .eq('biz_address', lead.address);
+      }
+    } catch (_) {}
+  } else {
+    // Save
+    savedLeadIds.add(key);
+    savedLeadsData.push(lead);
+    btn.textContent = '★';
+    btn.classList.add('saved');
+    // Save to Supabase
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      if (session) {
+        await sb.from('saved_leads').upsert({
+          user_id:     session.user.id,
+          biz_name:    lead.name,
+          biz_address: lead.address,
+          phone:       lead.phone || null,
+          email:       lead.email || null,
+          website:     lead.website || null,
+          rating:      lead.rating || null,
+          reviews:     lead.reviews || 0,
+          has_website: lead.hasWeb || false,
+          saved_at:    new Date().toISOString(),
+        }, { onConflict: 'user_id,biz_name,biz_address' });
+      }
+    } catch (_) {}
+  }
+  updateSavedCount();
+}
+
+function updateSavedCount() {
+  const badge = document.getElementById('savedCountBadge');
+  if (badge) {
+    badge.textContent = savedLeadsData.length;
+    badge.style.display = savedLeadsData.length > 0 ? 'inline-block' : 'none';
+  }
+}
+
+function toggleSavedPanel() {
+  const panel    = document.getElementById('savedPanel');
+  const backdrop = document.getElementById('savedPanelBackdrop');
+  const open     = panel.style.display === 'block';
+  panel.style.display    = open ? 'none' : 'block';
+  backdrop.style.display = open ? 'none' : 'block';
+  if (!open) renderSavedPanel();
+}
+
+function renderSavedPanel() {
+  const body = document.getElementById('savedPanelBody');
+  if (!savedLeadsData.length) {
+    body.innerHTML = `<div style="text-align:center;padding:40px 20px;color:var(--muted);">
+      <div style="font-size:32px;margin-bottom:12px;">☆</div>
+      <div style="font-size:14px;">No saved leads yet.<br>Click ☆ on any lead to save it.</div>
+    </div>`;
+    return;
+  }
+  body.innerHTML = savedLeadsData.map((l, i) => `
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+        <div>
+          <div style="font-weight:600;font-size:14px;margin-bottom:4px;">${l.name}</div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:6px;">${l.address}</div>
+          ${l.phone ? `<div style="font-size:12px;margin-bottom:2px;">📞 <a href="tel:${l.phone}" style="color:var(--accent2);text-decoration:none;">${l.phone}</a></div>` : ''}
+          ${l.email ? `<div style="font-size:12px;margin-bottom:2px;">✉️ <a href="mailto:${l.email}" style="color:var(--accent2);text-decoration:none;">${l.email}</a></div>` : ''}
+          ${l.website ? `<div style="font-size:12px;">🌐 <a href="${l.website}" target="_blank" style="color:var(--accent2);text-decoration:none;">${l.website.replace(/^https?:\/\//,'')}</a></div>` : ''}
+        </div>
+        <button onclick="removeSavedFromPanel(${i})" style="background:none;border:none;color:#555;cursor:pointer;font-size:16px;flex-shrink:0;" title="Remove">×</button>
+      </div>
+      ${l.rating ? `<div style="margin-top:8px;font-size:12px;color:var(--muted);">⭐ ${l.rating} · ${l.reviews || 0} reviews</div>` : ''}
+      <textarea placeholder="Add a note..." onblur="saveNote(this,'${(l.name+'|'+l.address).replace(/'/g,"\\'")}',this.value)" style="width:100%;margin-top:10px;background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:8px;font-size:12px;resize:vertical;min-height:48px;font-family:inherit;" data-key="${l.name+'|'+l.address}">${leadNotes[l.name+'|'+l.address] || ''}</textarea>
+    </div>
+  `).join('');
+}
+
+async function saveNote(el, key, text) {
+  leadNotes[key] = text;
+  // Persist to Supabase
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) return;
+    const lead = savedLeadsData.find(l => (l.name+'|'+l.address) === key);
+    if (!lead) return;
+    await sb.from('saved_leads').update({ note: text })
+      .eq('user_id', session.user.id)
+      .eq('biz_name', lead.name)
+      .eq('biz_address', lead.address);
+  } catch (_) {}
+}
+
+async function removeSavedFromPanel(idx) {
+  const lead = savedLeadsData[idx];
+  if (!lead) return;
+  const key = lead.name + '|' + lead.address;
+  savedLeadIds.delete(key);
+  savedLeadsData.splice(idx, 1);
+  renderSavedPanel();
+  renderTable();
+  updateSavedCount();
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) {
+      await sb.from('saved_leads').delete()
+        .eq('user_id', session.user.id)
+        .eq('biz_name', lead.name)
+        .eq('biz_address', lead.address);
+    }
+  } catch (_) {}
+}
+
+async function loadSavedLeads() {
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) return;
+    const { data } = await sb.from('saved_leads').select('*').eq('user_id', session.user.id);
+    if (data) {
+      savedLeadsData = data.map(r => ({
+        name: r.biz_name, address: r.biz_address,
+        phone: r.phone, email: r.email, website: r.website,
+        rating: r.rating, reviews: r.reviews,
+        hasWeb: r.has_website, hasEmail: !!r.email,
+      }));
+      savedLeadIds = new Set(savedLeadsData.map(l => l.name + '|' + l.address));
+      // Load notes
+      data.forEach(r => {
+        if (r.note) leadNotes[r.biz_name + '|' + r.biz_address] = r.note;
+      });
+      updateSavedCount();
+    }
+  } catch (_) {}
+}
 
 function fillSearch(niche, city) {
   document.getElementById('nicheInput').value = niche;
@@ -959,11 +1296,29 @@ async function runSearch() {
     return;
   }
 
-  // Hide results, show loading
+  // Hide results, show loading with skeleton rows
   document.getElementById('results-section').style.display = 'none';
   const loading = document.getElementById('loading');
   loading.style.display = 'block';
-  loading.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  // Populate skeleton
+  const skBody = document.getElementById('skeletonBody');
+  if (skBody) {
+    const skRows = Array.from({length: 8}, (_, i) => `
+      <tr style="border-bottom:1px solid rgba(255,255,255,0.04);">
+        <td style="padding:12px;text-align:center;color:var(--muted);font-size:13px;">${i+1}</td>
+        <td style="padding:12px;">
+          <span class="skeleton-line" style="width:140px;height:13px;"></span><br>
+          <span class="skeleton-line" style="width:100px;height:10px;margin-top:5px;"></span>
+        </td>
+        <td style="padding:12px;"><span class="skeleton-line" style="width:110px;height:13px;"></span></td>
+        <td style="padding:12px;"><span class="skeleton-line" style="width:130px;height:13px;"></span></td>
+        <td style="padding:12px;"><span class="skeleton-line" style="width:100px;height:13px;"></span></td>
+        <td style="padding:12px;"><span class="skeleton-line" style="width:60px;height:13px;"></span></td>
+        <td style="padding:12px;"><span class="skeleton-line" style="width:40px;height:13px;"></span></td>
+      </tr>`).join('');
+    skBody.innerHTML = skRows;
+  }
+  loading.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
   const count = parseInt(document.getElementById('leadsSlider').value);
 
@@ -1041,6 +1396,7 @@ async function runSearch() {
     }));
     searchPerformed = true;
 
+    saveSearchHistory(niche, city);
     renderResults(niche, city);
 
   } catch (err) {
@@ -1117,7 +1473,7 @@ function renderTable() {
       : 'Try adjusting your search.';
 
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td colspan="7" style="text-align:center;padding:48px 24px;">
+    tr.innerHTML = `<td colspan="8" style="text-align:center;padding:48px 24px;">
       <div style="font-size:28px;margin-bottom:12px;">🔍</div>
       <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:8px;">No results found</div>
       <div style="font-size:13px;color:var(--muted);max-width:400px;margin:0 auto;line-height:1.6;">${filterText} Try removing a filter or searching a different location.</div>
@@ -1132,7 +1488,7 @@ function renderTable() {
       ? `<a href="${l.website}" target="_blank" class="web-link">${l.website.replace(/^https?:\/\//, '')}</a>`
       : `<span class="badge badge-red">✕ No Website</span>`;
     const emailCell = l.email
-      ? `<a href="mailto:${l.email}" class="email-text" title="Found on their website">${l.email}</a>`
+      ? `<div class="email-cell"><a href="mailto:${l.email}" class="email-text" title="Send email">${l.email}</a><button class="copy-btn" onclick="copyEmail(this,'${l.email}')" title="Copy email">⎘</button></div>`
       : `<span style="color:#555;font-size:12px;">—</span>`;
     const yearsText = l.years ? (l.years === 1 ? '1 year' : `${l.years} years`) : 'Unknown';
 
@@ -1156,14 +1512,17 @@ function renderTable() {
       ? `<span style="font-size:12px;color:${l.freshness.color};font-weight:600;">${l.freshness.label}</span>`
       : `<span style="font-size:12px;color:var(--green);font-weight:600;">Live</span>`;
 
+    const isSaved = savedLeadIds.has(l.name + '|' + l.address);
+    const saveIcon = isSaved ? '★' : '☆';
     const tr = document.createElement('tr');
+    tr.dataset.leadIdx = i;
     tr.innerHTML = `
       <td style="color:var(--muted);font-size:13px;white-space:nowrap;width:32px;text-align:center;">${i+1}</td>
       <td>
         <div class="biz-name">${l.name}</div>
         <div class="biz-address">${l.address}</div>
       </td>
-      <td><a href="tel:${l.phone}" class="phone-link">${l.phone}</a></td>
+      <td>${l.phone ? `<a href="tel:${l.phone}" class="phone-link">${l.phone}</a>` : '<span style="color:#555;font-size:12px;">—</span>'}</td>
       <td>${emailCell}</td>
       <td>${websiteBadge}</td>
       <td>
@@ -1171,6 +1530,7 @@ function renderTable() {
         <span style="font-size:12px;color:var(--muted);margin-left:4px;">${l.rating}</span>
       </td>
       <td>${reviewsCell}</td>
+      <td style="text-align:center;"><button class="save-btn${isSaved ? ' saved' : ''}" onclick="toggleSaveLead(this,${i})" title="${isSaved ? 'Unsave' : 'Save lead'}">${saveIcon}</button></td>
     `;
     tbody.appendChild(tr);
   });
@@ -1277,6 +1637,15 @@ updateExportButton();
     updateSearchCounter();
     updateExportButton();
     initSlider();
+
+    // Load saved leads + search history
+    loadSavedLeads();
+    loadSearchHistory();
+
+    // Welcome modal — show if account was created in the last 2 minutes
+    const createdAt = new Date(user.created_at);
+    const isNewUser = (Date.now() - createdAt.getTime()) < 2 * 60 * 1000;
+    maybeShowWelcomeModal(isNewUser);
   });
 
   async function logout() {
