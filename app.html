@@ -1262,7 +1262,6 @@ function toggleProfilePanel() {
   const open     = panel.style.display === 'block';
   panel.style.display    = open ? 'none' : 'block';
   backdrop.style.display = open ? 'none' : 'block';
-  if (!open) refreshProfilePanel();
 }
 
 function refreshProfilePanel() {
@@ -1797,7 +1796,7 @@ updateExportButton();
 
     userPlan = currentPlan;
 
-    // Store for profile panel
+    // Store for profile panel and pre-populate it immediately
     profileUserData = {
       email:         user.email,
       createdAt:     user.created_at,
@@ -1805,6 +1804,7 @@ updateExportButton();
       searchesUsed:  serverSearchesUsed,
       searchesLimit: currentPlan === 'pro' ? 'unlimited' : 5,
     };
+    refreshProfilePanel();
 
     // Update UI now that real plan is loaded
     updateSearchCounter();
