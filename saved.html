@@ -173,11 +173,12 @@ sb.auth.getSession().then(async ({ data }) => {
   if (!data.session) { location.href = 'login.html'; return; }
 
   const userId = data.session.user.id;
-  const { data: rows } = await sb.from('saved_leads')
+  const { data: rows, error } = await sb.from('saved_leads')
     .select('*')
     .eq('user_id', userId)
     .order('saved_at', { ascending: false });
 
+  if (error) console.error('Load saved leads error:', error.message);
   document.getElementById('loadingState').style.display = 'none';
 
   if (!rows || rows.length === 0) {
