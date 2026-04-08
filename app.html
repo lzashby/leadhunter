@@ -511,8 +511,10 @@
   </div>
   <div class="nav-right">
     <a href="niches.html" style="color:#a855f7;font-size:14px;text-decoration:none;display:flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid #2a2a3e;border-radius:8px;" onmouseover="this.style.borderColor='#a855f7'" onmouseout="this.style.borderColor='#2a2a3e'">🗺️ Niche & City Explorer</a>
-    <span id="userEmail" style="color:var(--muted);font-size:13px;"></span>
-    <button class="btn-ghost" id="logoutBtn" onclick="logout()" style="display:none;">Log Out</button>
+    <!-- Profile avatar button -->
+    <button id="profileBtn" onclick="toggleProfilePanel()" style="display:none;background:linear-gradient(135deg,var(--accent),#8b5cf6);border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:14px;font-weight:700;color:#fff;flex-shrink:0;position:relative;" title="Account">
+      <span id="profileInitial">?</span>
+    </button>
   </div>
 </nav>
 
@@ -710,6 +712,69 @@
     </div>
   </div>
 </div>
+
+<!-- Profile Panel -->
+<div id="profilePanel" style="display:none;position:fixed;top:0;right:0;width:min(360px,100vw);height:100vh;background:var(--surface);border-left:1px solid var(--border);z-index:600;overflow-y:auto;box-shadow:-8px 0 32px rgba(0,0,0,0.5);">
+  <!-- Header -->
+  <div style="padding:20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+    <div style="font-size:15px;font-weight:700;">My Account</div>
+    <button onclick="toggleProfilePanel()" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1;">×</button>
+  </div>
+
+  <!-- Avatar + email + plan -->
+  <div style="padding:24px 20px;border-bottom:1px solid var(--border);text-align:center;">
+    <div id="profileAvatarLarge" style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;color:#fff;margin:0 auto 12px;"></div>
+    <div id="profileEmailDisplay" style="font-size:14px;font-weight:600;margin-bottom:6px;word-break:break-all;"></div>
+    <div id="profilePlanBadge" style="display:inline-block;font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;margin-bottom:6px;"></div>
+    <div id="profileMemberSince" style="font-size:12px;color:var(--muted);"></div>
+  </div>
+
+  <!-- Usage stats -->
+  <div style="padding:20px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:12px;">
+    <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">This Month</div>
+
+    <!-- Searches -->
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <div style="font-size:13px;font-weight:600;">🔍 Searches Used</div>
+        <div id="profileSearchCount" style="font-size:13px;font-weight:700;color:var(--accent2);"></div>
+      </div>
+      <div id="profileSearchBar" style="background:var(--border);border-radius:4px;height:5px;overflow:hidden;">
+        <div id="profileSearchFill" style="height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:4px;transition:width 0.4s;width:0%;"></div>
+      </div>
+      <div id="profileSearchReset" style="font-size:11px;color:#555;margin-top:6px;"></div>
+    </div>
+
+    <!-- Saved leads -->
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;" onclick="toggleProfilePanel();toggleSavedPanel();">
+      <div>
+        <div style="font-size:13px;font-weight:600;">★ Saved Leads</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px;">Click to view &amp; manage</div>
+      </div>
+      <div id="profileSavedCount" style="font-size:22px;font-weight:800;color:var(--accent2);">0</div>
+    </div>
+  </div>
+
+  <!-- Plan section -->
+  <div style="padding:20px;border-bottom:1px solid var(--border);">
+    <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;">Plan</div>
+    <div id="profilePlanDetails" style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;"></div>
+  </div>
+
+  <!-- Actions -->
+  <div style="padding:20px;display:flex;flex-direction:column;gap:10px;">
+    <button onclick="toggleProfilePanel();toggleSavedPanel();" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:12px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;text-align:left;display:flex;align-items:center;gap:10px;">
+      <span style="font-size:16px;">★</span> View Saved Leads
+    </button>
+    <button onclick="toggleProfilePanel();location.href='pricing.html';" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:12px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;text-align:left;display:flex;align-items:center;gap:10px;">
+      <span style="font-size:16px;">💳</span> Plans &amp; Billing
+    </button>
+    <button onclick="profileLogout()" style="background:transparent;border:1px solid #333;color:#888;padding:12px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;text-align:left;display:flex;align-items:center;gap:10px;margin-top:4px;">
+      <span style="font-size:16px;">→</span> Log Out
+    </button>
+  </div>
+</div>
+<div id="profilePanelBackdrop" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:599;" onclick="toggleProfilePanel()"></div>
 
 <!-- Welcome Modal (shown once to new users) -->
 <div id="welcomeModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:1000;align-items:center;justify-content:center;">
@@ -1182,6 +1247,107 @@ function updateSavedCount() {
     badge.textContent = savedLeadsData.length;
     badge.style.display = savedLeadsData.length > 0 ? 'inline-block' : 'none';
   }
+  const profileCount = document.getElementById('profileSavedCount');
+  if (profileCount) profileCount.textContent = savedLeadsData.length;
+}
+
+// ── Profile panel ──────────────────────────────────────────────────────────
+let profileUserData = null;
+
+function toggleProfilePanel() {
+  const panel    = document.getElementById('profilePanel');
+  const backdrop = document.getElementById('profilePanelBackdrop');
+  const open     = panel.style.display === 'block';
+  panel.style.display    = open ? 'none' : 'block';
+  backdrop.style.display = open ? 'none' : 'block';
+  if (!open) refreshProfilePanel();
+}
+
+function refreshProfilePanel() {
+  if (!profileUserData) return;
+  const { email, createdAt, plan, searchesUsed, searchesLimit } = profileUserData;
+
+  // Avatar
+  const initial = (email || '?')[0].toUpperCase();
+  document.getElementById('profileInitial').textContent      = initial;
+  document.getElementById('profileAvatarLarge').textContent  = initial;
+  document.getElementById('profileEmailDisplay').textContent = email || '';
+
+  // Plan badge
+  const badge = document.getElementById('profilePlanBadge');
+  if (plan === 'pro') {
+    badge.textContent = '✦ Pro';
+    badge.style.cssText = 'display:inline-block;font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;background:rgba(167,139,250,0.15);color:#a78bfa;border:1px solid rgba(167,139,250,0.3);';
+  } else {
+    badge.textContent = 'Free Plan';
+    badge.style.cssText = 'display:inline-block;font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;background:rgba(136,136,136,0.12);color:#888;border:1px solid #333;';
+  }
+
+  // Member since
+  if (createdAt) {
+    const d = new Date(createdAt);
+    document.getElementById('profileMemberSince').textContent =
+      'Member since ' + d.toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
+  }
+
+  // Searches
+  const isUnlimited = searchesLimit === 'unlimited' || searchesLimit === Infinity;
+  const pct = isUnlimited ? 100 : Math.min(100, Math.round((searchesUsed / searchesLimit) * 100));
+  const countText = isUnlimited ? `${searchesUsed} (unlimited)` : `${searchesUsed} / ${searchesLimit}`;
+  document.getElementById('profileSearchCount').textContent = countText;
+  document.getElementById('profileSearchFill').style.width  = isUnlimited ? '100%' : pct + '%';
+  document.getElementById('profileSearchFill').style.background = pct >= 80
+    ? 'linear-gradient(90deg,#f97316,#ef4444)'
+    : 'linear-gradient(90deg,var(--accent),var(--accent2))';
+
+  // Reset date
+  const resetEl = document.getElementById('profileSearchReset');
+  if (serverResetDate) {
+    const d = new Date(serverResetDate);
+    const next = new Date(d.getFullYear(), d.getMonth() + 1, 1);
+    const daysLeft = Math.ceil((next - Date.now()) / (1000*60*60*24));
+    resetEl.textContent = daysLeft > 0 ? `Resets in ${daysLeft} day${daysLeft !== 1 ? 's' : ''}` : 'Resets soon';
+  }
+
+  // Saved count
+  document.getElementById('profileSavedCount').textContent = savedLeadsData.length;
+
+  // Plan details
+  const planBox = document.getElementById('profilePlanDetails');
+  if (plan === 'pro') {
+    planBox.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+        <div style="font-size:20px;">✦</div>
+        <div><div style="font-weight:700;color:var(--accent2);">Pro Plan</div><div style="font-size:12px;color:var(--muted);">Active</div></div>
+      </div>
+      <ul style="list-style:none;display:flex;flex-direction:column;gap:6px;font-size:13px;color:#ccc;">
+        <li>✓ Unlimited searches</li>
+        <li>✓ Up to 100 leads per search</li>
+        <li>✓ Excel export</li>
+        <li>✓ Save unlimited leads</li>
+      </ul>`;
+  } else {
+    const left = Math.max(0, (searchesLimit || 5) - searchesUsed);
+    planBox.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+        <div style="font-size:20px;">🆓</div>
+        <div><div style="font-weight:700;">Free Plan</div><div style="font-size:12px;color:var(--muted);">${left} search${left !== 1 ? 'es' : ''} remaining this month</div></div>
+      </div>
+      <ul style="list-style:none;display:flex;flex-direction:column;gap:6px;font-size:13px;color:#888;margin-bottom:14px;">
+        <li>✓ 5 searches per month</li>
+        <li>✓ Up to 25 leads per search</li>
+        <li style="color:#555;">✗ Excel export (Pro only)</li>
+        <li style="color:#555;">✗ Unlimited leads (Pro only)</li>
+      </ul>
+      <button onclick="toggleProfilePanel();location.href='pricing.html';" style="width:100%;background:linear-gradient(135deg,var(--accent),#8b5cf6);border:none;color:#fff;padding:10px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:700;">
+        Upgrade to Pro — $49/mo
+      </button>`;
+  }
+}
+
+function profileLogout() {
+  toggleProfilePanel();
+  logout();
 }
 
 function toggleSavedPanel() {
@@ -1384,6 +1550,11 @@ async function runSearch() {
       serverSearchesUsed = data.usage.searches_used;
       updateSearchCounter();
       updateExportButton();
+      if (profileUserData) {
+        profileUserData.searchesUsed  = data.usage.searches_used;
+        profileUserData.searchesLimit = data.usage.searches_limit;
+        profileUserData.plan          = data.usage.plan;
+      }
     }
 
     // Map backend fields to frontend expected fields
@@ -1610,8 +1781,13 @@ updateExportButton();
       return;
     }
     const user = data.session.user;
-    document.getElementById('userEmail').textContent = user.email;
-    document.getElementById('logoutBtn').style.display = 'inline-block';
+
+    // Show profile button
+    const profileBtn = document.getElementById('profileBtn');
+    profileBtn.style.display = 'flex';
+    profileBtn.style.alignItems = 'center';
+    profileBtn.style.justifyContent = 'center';
+    document.getElementById('profileInitial').textContent = (user.email || '?')[0].toUpperCase();
 
     // Fetch plan and search count from profiles table
     const { data: profile } = await sb.from('profiles').select('plan, searches_used, searches_reset_date').eq('id', user.id).single();
@@ -1619,19 +1795,16 @@ updateExportButton();
     serverSearchesUsed = profile?.searches_used || 0;
     serverResetDate    = profile?.searches_reset_date || null;
 
-    const planColors = { free: '#22c55e', pro: '#a78bfa' };
-    const planBadge = document.createElement('span');
-    planBadge.textContent = currentPlan.toUpperCase();
-    planBadge.style.cssText = `
-      background: ${planColors[currentPlan] || '#888'}22;
-      color: ${planColors[currentPlan] || '#888'};
-      border: 1px solid ${planColors[currentPlan] || '#888'}55;
-      font-size: 11px; font-weight: 700; padding: 3px 8px;
-      border-radius: 20px; letter-spacing: 0.5px;
-    `;
-    document.getElementById('userEmail').after(planBadge);
-
     userPlan = currentPlan;
+
+    // Store for profile panel
+    profileUserData = {
+      email:         user.email,
+      createdAt:     user.created_at,
+      plan:          currentPlan,
+      searchesUsed:  serverSearchesUsed,
+      searchesLimit: currentPlan === 'pro' ? 'unlimited' : 5,
+    };
 
     // Update UI now that real plan is loaded
     updateSearchCounter();
