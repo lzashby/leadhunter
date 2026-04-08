@@ -146,7 +146,7 @@
     <div class="plan" id="freePlanCard">
       <div id="freePlanStatus"></div>
       <div class="plan-name">Free</div>
-      <div class="plan-price">$0 <span>/mo</span></div>
+      <div class="plan-price">$0 <span>USD/mo</span></div>
       <p class="plan-desc">Perfect for trying out LeadHunter before committing.</p>
       <button class="plan-btn plan-btn-outline" id="freePlanBtn" onclick="location.href='auth.html'">Get Started Free</button>
       <hr class="plan-divider">
@@ -168,7 +168,7 @@
       <div class="popular-badge" id="proPlanBadge">MOST POPULAR</div>
       <div id="proPlanStatus"></div>
       <div class="plan-name">Pro</div>
-      <div class="plan-price" id="proPrice">$49 <span>/mo</span></div>
+      <div class="plan-price" id="proPrice">$49 <span>USD/mo</span></div>
       <p class="plan-desc">For freelancers and agencies serious about growing their client base.</p>
       <button class="plan-btn plan-btn-fill" id="proPlanBtn" onclick="location.href='auth.html'">Subscribe</button>
       <hr class="plan-divider">
@@ -247,7 +247,7 @@
   </div>
   <div class="faq-item">
     <div class="faq-q" onclick="toggleFaq(this)">Do you offer discounts for annual plans? <span class="faq-chevron">+</span></div>
-    <div class="faq-a"><p>Yes — paying annually saves you 30%. Pro drops from $49/mo to $34/mo, and Agency from $149/mo to $104/mo.</p></div>
+    <div class="faq-a"><p>Yes — paying annually saves you 30%. Pro drops from $49 USD/mo to $34 USD/mo.</p></div>
   </div>
 </div>
 
@@ -287,7 +287,7 @@
 function setBilling(mode) {
   document.getElementById('monthlyBtn').classList.toggle('active', mode === 'monthly');
   document.getElementById('annualBtn').classList.toggle('active', mode === 'annual');
-  document.getElementById('proPrice').innerHTML = mode === 'annual' ? '$34 <span>/mo</span>' : '$49 <span>/mo</span>';
+  document.getElementById('proPrice').innerHTML = mode === 'annual' ? '$34 <span>USD/mo</span>' : '$49 <span>USD/mo</span>';
 }
 function toggleFaq(el) {
   const item = el.parentElement;
