@@ -769,7 +769,7 @@
     <button onclick="toggleProfilePanel();toggleSavedPanel();" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:12px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;text-align:left;display:flex;align-items:center;gap:10px;">
       <span style="font-size:16px;">★</span> View Saved Leads
     </button>
-    <button onclick="toggleProfilePanel();location.href='pricing.html';" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:12px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;text-align:left;display:flex;align-items:center;gap:10px;">
+    <button id="billingBtn" onclick="handleBillingClick()" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:12px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;text-align:left;display:flex;align-items:center;gap:10px;">
       <span style="font-size:16px;">💳</span> Plans &amp; Billing
     </button>
     <button onclick="profileLogout()" style="background:transparent;border:1px solid #333;color:#888;padding:12px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;text-align:left;display:flex;align-items:center;gap:10px;margin-top:4px;">
@@ -1096,14 +1096,51 @@ function closeFeatureModal() {
   document.getElementById('featureModal').style.display = 'none';
 }
 
-function upgradeToPro() {
+async function upgradeToPro() {
   closeModal();
-  location.href = 'pricing.html';
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { location.href = 'login.html'; return; }
+    const res = await fetch('https://leadhunter-backend-production.up.railway.app/create-checkout-session', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${session.access_token}`, 'Content-Type': 'application/json' },
+    });
+    const data = await res.json();
+    if (data.url) location.href = data.url;
+    else alert('Could not start checkout. Please try again.');
+  } catch (e) {
+    alert('Could not start checkout. Please try again.');
+  }
 }
 
 function closeWelcomeModal() {
   document.getElementById('welcomeModal').style.display = 'none';
   localStorage.setItem('lh_welcomed', '1');
+}
+
+// Show upgrade success banner if redirected back from Stripe
+if (new URLSearchParams(location.search).get('upgraded') === '1') {
+  history.replaceState({}, '', location.pathname);
+  const banner = document.createElement('div');
+  banner.style.cssText = 'position:fixed;top:70px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;padding:14px 28px;border-radius:12px;font-size:14px;font-weight:700;z-index:9999;box-shadow:0 4px 20px rgba(34,197,94,0.4);';
+  banner.textContent = '🎉 Welcome to Pro! Your account has been upgraded.';
+  document.body.appendChild(banner);
+  setTimeout(() => banner.remove(), 5000);
+}
+
+async function openBillingPortal() {
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) return;
+    const res = await fetch('https://leadhunter-backend-production.up.railway.app/create-portal-session', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${session.access_token}`, 'Content-Type': 'application/json' },
+    });
+    const data = await res.json();
+    if (data.url) location.href = data.url;
+  } catch (e) {
+    alert('Could not open billing portal. Please try again.');
+  }
 }
 
 function maybeShowWelcomeModal(isNewUser) {
@@ -1349,6 +1386,15 @@ function refreshProfilePanel() {
 function profileLogout() {
   toggleProfilePanel();
   logout();
+}
+
+function handleBillingClick() {
+  toggleProfilePanel();
+  if (currentPlan === 'pro') {
+    openBillingPortal();
+  } else {
+    location.href = 'pricing.html';
+  }
 }
 
 function toggleSavedPanel() {

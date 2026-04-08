@@ -289,6 +289,21 @@ function setBilling(mode) {
   document.getElementById('annualBtn').classList.toggle('active', mode === 'annual');
   document.getElementById('proPrice').innerHTML = mode === 'annual' ? '$34 <span>USD/mo</span>' : '$49 <span>USD/mo</span>';
 }
+async function startCheckout() {
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { location.href = 'auth.html'; return; }
+    const res = await fetch('https://leadhunter-backend-production.up.railway.app/create-checkout-session', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${session.access_token}`, 'Content-Type': 'application/json' },
+    });
+    const data = await res.json();
+    if (data.url) location.href = data.url;
+    else alert('Could not start checkout. Please try again.');
+  } catch (e) {
+    alert('Could not start checkout. Please try again.');
+  }
+}
 function toggleFaq(el) {
   const item = el.parentElement;
   const isOpen = item.classList.contains('open');
@@ -325,7 +340,7 @@ function updatePlanCards(plan) {
     // Pro is upgrade
     proBtnEl.className   = 'plan-btn plan-btn-fill';
     proBtnEl.textContent = 'Upgrade to Pro';
-    proBtnEl.onclick     = () => location.href = 'auth.html';
+    proBtnEl.onclick     = startCheckout;
     proBadge.textContent = 'MOST POPULAR';
 
   } else if (plan === 'pro') {
