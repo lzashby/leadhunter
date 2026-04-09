@@ -354,7 +354,7 @@ function updatePlanCards(plan) {
 
     // Free is downgrade
     freeBtnEl.className   = 'plan-btn plan-btn-danger';
-    freeBtnEl.textContent = 'Downgrade / Cancel';
+    freeBtnEl.textContent = 'Downgrade';
     freeBtnEl.onclick     = () => {
       if (confirm('Are you sure you want to downgrade to the Free plan?')) location.href = 'mailto:support@leadhunter.com?subject=Cancel Pro';
     };
