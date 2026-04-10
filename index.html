@@ -445,10 +445,6 @@
       <div class="section-label" style="text-align:center;">Pricing</div>
       <div class="section-title">Simple, transparent pricing</div>
       <p style="color:var(--muted);font-size:16px;">Start free. No credit card required.</p>
-      <div class="billing-toggle">
-        <button class="toggle-btn active" id="monthlyBtn" onclick="setBilling('monthly')">Monthly</button>
-        <button class="toggle-btn" id="annualBtn" onclick="setBilling('annual')">Annual <span class="save-badge">Save 30%</span></button>
-      </div>
       <div class="plans">
         <div class="plan">
           <div class="plan-name">Free</div>
@@ -715,13 +711,6 @@ const observer = new IntersectionObserver((entries) => {
 }, { threshold: 0.1 });
 document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-// ── Billing toggle ─────────────────────────────────────────────────────────
-function setBilling(mode) {
-  document.getElementById('monthlyBtn').classList.toggle('active', mode === 'monthly');
-  document.getElementById('annualBtn').classList.toggle('active', mode === 'annual');
-  document.getElementById('proPrice').innerHTML    = mode === 'annual' ? '$34 <span>/mo</span>' : '$49 <span>/mo</span>';
-  document.getElementById('agencyPrice').innerHTML = mode === 'annual' ? '$104 <span>/mo</span>' : '$149 <span>/mo</span>';
-}
 
 // ── FAQ accordion ──────────────────────────────────────────────────────────
 function toggleFaq(el) {
