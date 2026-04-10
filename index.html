@@ -618,6 +618,20 @@
   </div>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// Auto-redirect logged-in users to the app
+(async () => {
+  const { createClient } = supabase;
+  const sb = createClient(
+    'https://hysngrxzysorzxlbytjq.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh5c25ncnh6eXNvcnp4bGJ5dGpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyNTMzNTMsImV4cCI6MjA4OTgyOTM1M30.sG4g5WhReJqSe7kUES9g8AVrzh83QvGMRUg5kT0whJ8'
+  );
+  const { data } = await sb.auth.getSession();
+  if (data.session) location.href = 'app.html';
+})();
+</script>
+
 <script>
 // ── Demo animation ─────────────────────────────────────────────────────────
 async function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
