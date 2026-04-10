@@ -223,13 +223,19 @@
 
     btn.disabled = true; btn.textContent = 'Creating account...';
 
-    const { error: signUpError } = await sb.auth.signUp({ email, password, options: { data: { full_name: name } } });
+    const { data: signUpData, error: signUpError } = await sb.auth.signUp({ email, password, options: { data: { full_name: name } } });
     if (signUpError) { showErr('signupError', signUpError.message); btn.disabled = false; btn.textContent = 'Create Free Account →'; return; }
 
-    const { data: signInData, error: signInError } = await sb.auth.signInWithPassword({ email, password });
-    if (signInError) { showErr('signupError', 'Account created — please log in.'); showLogin(); return; }
+    // Email confirmation required — no session returned
+    if (!signUpData.session) {
+      document.getElementById('signupSuccess').innerHTML = '✓ Check your email!<br><span style="font-size:12px;opacity:0.85;">We sent a confirmation link to <strong>' + email + '</strong>. Click it to activate your account, then log in.</span>';
+      document.getElementById('signupSuccess').style.display = 'block';
+      btn.disabled = false; btn.textContent = 'Create Free Account →';
+      return;
+    }
 
-    await sb.from('profiles').insert({ id: signInData.user.id, full_name: name, plan: 'free' });
+    // Email confirmation off — session returned immediately
+    await sb.from('profiles').insert({ id: signUpData.user.id, full_name: name, plan: 'free' });
 
     document.getElementById('signupSuccess').textContent = '✓ Account created! Taking you to the app...';
     document.getElementById('signupSuccess').style.display = 'block';
@@ -248,8 +254,15 @@
 
     btn.disabled = true; btn.textContent = 'Logging in...';
 
-    const { error } = await sb.auth.signInWithPassword({ email, password });
+    const { data: loginData, error } = await sb.auth.signInWithPassword({ email, password });
     if (error) { showErr('loginError', 'Incorrect email or password. Please try again.'); btn.disabled = false; btn.textContent = 'Log In →'; return; }
+
+    // Create profile if missing (e.g. user signed up with email confirmation)
+    const { data: profile } = await sb.from('profiles').select('id').eq('id', loginData.user.id).single();
+    if (!profile) {
+      const fullName = loginData.user.user_metadata?.full_name || '';
+      await sb.from('profiles').insert({ id: loginData.user.id, full_name: fullName, plan: 'free' });
+    }
 
     document.getElementById('loginSuccess').textContent = '✓ Logged in! Taking you to the app...';
     document.getElementById('loginSuccess').style.display = 'block';
