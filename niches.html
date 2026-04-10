@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Niche & City Explorer — LeadHunter</title>
+  <title>Business & City Explorer — LeadHunter</title>
   <style>
     :root {
       --bg: #0a0a0f;
@@ -196,7 +196,7 @@
 <div id="lockScreen">
   <div class="lock-icon">🔒</div>
   <div class="lock-title">Pro Feature — <span>Unlock the Explorer</span></div>
-  <div class="lock-sub">The Niche & City Explorer is exclusive to Pro and Agency members. Get instant access to 500+ cities and 200+ niches with search combos.</div>
+  <div class="lock-sub">The Business & City Explorer is exclusive to Pro and Agency members. Get instant access to 500+ cities and 200+ niches with search combos.</div>
   <div class="lock-features">
     <div class="lock-feature"><span>✓</span> 200+ business niches across every industry</div>
     <div class="lock-feature"><span>✓</span> 500+ cities worldwide — US, UK, AU, EU & more</div>
@@ -209,7 +209,7 @@
 <!-- MAIN CONTENT -->
 <div id="mainContent">
   <div class="page-header">
-    <h1>Niche & City Explorer <span class="badge-pro">PRO</span></h1>
+    <h1>Business & City Explorer <span class="badge-pro">PRO</span></h1>
     <p>Browse 200+ niches and 500+ cities. Click any item to copy it — then paste it straight into your search.</p>
   </div>
 
@@ -268,6 +268,7 @@
 
 <div class="toast" id="toast">Copied to clipboard!</div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   const NICHES = {
     'Home Services': [
@@ -546,18 +547,19 @@
     ],
   };
 
-  // Check plan
-  function getPlan() {
-    return localStorage.getItem('lh_plan') || 'free';
-  }
+  const { createClient } = supabase;
+  const sb = createClient(
+    'https://hysngrxzysorzxlbytjq.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh5c25ncnh6eXNvcnp4bGJ5dGpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyNTMzNTMsImV4cCI6MjA4OTgyOTM1M30.sG4g5WhReJqSe7kUES9g8AVrzh83QvGMRUg5kT0whJ8'
+  );
 
-  function demoPro() {
-    localStorage.setItem('lh_plan', 'pro');
-    location.reload();
-  }
+  async function init() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { location.href = 'auth.html'; return; }
 
-  function init() {
-    const plan = getPlan();
+    const { data: profile } = await sb.from('profiles').select('plan').eq('id', session.user.id).single();
+    const plan = profile?.plan || 'free';
+
     if (plan === 'free') {
       document.getElementById('lockScreen').style.display = 'flex';
     } else {
