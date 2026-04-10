@@ -1100,7 +1100,7 @@ async function upgradeToPro() {
   closeModal();
   try {
     const { data: { session } } = await sb.auth.getSession();
-    if (!session) { location.href = 'login.html'; return; }
+    if (!session) { location.href = 'auth.html'; return; }
     const res = await fetch('https://leadhunter-backend-production.up.railway.app/create-checkout-session', {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${session.access_token}`, 'Content-Type': 'application/json' },
@@ -1824,7 +1824,7 @@ updateExportButton();
 
   sb.auth.getSession().then(async ({ data }) => {
     if (!data.session) {
-      location.href = 'login.html';
+      location.href = 'auth.html';
       return;
     }
     const user = data.session.user;
