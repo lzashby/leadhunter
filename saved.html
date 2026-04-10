@@ -174,7 +174,7 @@ const sb = createClient(
 let savedLeads = [];
 
 sb.auth.getSession().then(async ({ data }) => {
-  if (!data.session) { location.href = 'login.html'; return; }
+  if (!data.session) { location.href = 'auth.html'; return; }
 
   const userId = data.session.user.id;
   const { data: rows, error } = await sb.from('saved_leads')
