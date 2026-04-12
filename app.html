@@ -1839,7 +1839,12 @@ updateExportButton();
     document.getElementById('profileInitial').textContent = (user.email || '?')[0].toUpperCase();
 
     // Fetch plan and search count from profiles table
-    const { data: profile } = await sb.from('profiles').select('plan, searches_used, searches_reset_date').eq('id', user.id).single();
+    let { data: profile } = await sb.from('profiles').select('plan, searches_used, searches_reset_date, full_name').eq('id', user.id).single();
+    if (!profile) {
+      const fullName = user.user_metadata?.full_name || '';
+      await sb.from('profiles').insert({ id: user.id, full_name: fullName, plan: 'free' });
+      profile = { plan: 'free', searches_used: 0, searches_reset_date: null, full_name: fullName };
+    }
     currentPlan        = profile?.plan || 'free';
     serverSearchesUsed = profile?.searches_used || 0;
     serverResetDate    = profile?.searches_reset_date || null;
