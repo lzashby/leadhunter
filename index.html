@@ -712,8 +712,17 @@ function toggleFaq(el) {
 
 // ── Hero search redirect ───────────────────────────────────────────────────
 async function goToApp() {
-  const { data } = await sb.auth.getSession();
-  location.href = data.session ? 'app.html' : 'auth.html';
+  try {
+    const { createClient } = supabase;
+    const client = createClient(
+      'https://hysngrxzysorzxlbytjq.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh5c25ncnh6eXNvcnp4bGJ5dGpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyNTMzNTMsImV4cCI6MjA4OTgyOTM1M30.sG4g5WhReJqSe7kUES9g8AVrzh83QvGMRUg5kT0whJ8'
+    );
+    const { data } = await client.auth.getSession();
+    location.href = data.session ? 'app.html' : 'auth.html';
+  } catch(e) {
+    location.href = 'auth.html';
+  }
 }
 </script>
 </body>
