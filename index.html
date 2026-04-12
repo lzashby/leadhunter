@@ -123,7 +123,7 @@
     }
     .demo-results { display: none; }
     .demo-result-row {
-      display: grid; grid-template-columns: 2fr 1fr 1.5fr;
+      display: grid; grid-template-columns: 2fr 1fr 1.5fr 1.6fr;
       gap: 10px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
       font-size: 13px; align-items: center; opacity: 0; transform: translateX(-10px);
       transition: opacity 0.3s, transform 0.3s;
@@ -311,30 +311,35 @@
         <div class="demo-btn">Find Leads</div>
       </div>
       <div id="demoResults" class="demo-results">
-        <div style="display:grid;grid-template-columns:2fr 1fr 1.5fr;gap:10px;padding:0 0 8px 0;border-bottom:1px solid var(--border);margin-bottom:6px;">
+        <div style="display:grid;grid-template-columns:2fr 1fr 1.5fr 1.6fr;gap:10px;padding:0 0 8px 0;border-bottom:1px solid var(--border);margin-bottom:6px;">
           <span style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">Business</span>
           <span style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">Phone</span>
           <span style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">Website</span>
+          <span style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">Email</span>
         </div>
         <div class="demo-result-row" id="dr1">
           <div><div class="biz">Smith & Sons Plumbing</div><div class="sub">14 Oak St, London</div></div>
           <div style="font-size:13px;color:#a78bfa;">+44 7821-334-991</div>
           <div><span style="background:rgba(239,68,68,0.15);color:#ef4444;border:1px solid rgba(239,68,68,0.2);padding:3px 8px;border-radius:20px;font-size:11px;">✕ No Website</span></div>
+          <div style="font-size:12px;color:#aaa;">info@smithplumbing.co.uk</div>
         </div>
         <div class="demo-result-row" id="dr2">
           <div><div class="biz">London Plumbing Co.</div><div class="sub">88 River Ave, London</div></div>
           <div style="font-size:13px;color:#a78bfa;">+44 7543-221-887</div>
           <div><a style="color:#a78bfa;font-size:13px;">www.londonplumbing.com</a></div>
+          <div style="font-size:12px;color:#555;">—</div>
         </div>
         <div class="demo-result-row" id="dr3">
           <div><div class="biz">Elite Plumbing Services</div><div class="sub">3 High Rd, London</div></div>
           <div style="font-size:13px;color:#a78bfa;">+44 7902-118-443</div>
           <div><span style="background:rgba(239,68,68,0.15);color:#ef4444;border:1px solid rgba(239,68,68,0.2);padding:3px 8px;border-radius:20px;font-size:11px;">✕ No Website</span></div>
+          <div style="font-size:12px;color:#aaa;">hello@eliteplumbing.co.uk</div>
         </div>
         <div class="demo-result-row" id="dr4">
           <div><div class="biz">City Pro Plumbing</div><div class="sub">201 Bridge Lane, London</div></div>
           <div style="font-size:13px;color:#a78bfa;">+44 7634-009-772</div>
           <div><a style="color:#a78bfa;font-size:13px;">www.cityproplumbing.com</a></div>
+          <div style="font-size:12px;color:#aaa;">contact@cityproplumbing.com</div>
         </div>
       </div>
     </div>
