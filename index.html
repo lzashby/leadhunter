@@ -711,8 +711,9 @@ function toggleFaq(el) {
 }
 
 // ── Hero search redirect ───────────────────────────────────────────────────
-function goToApp() {
-  location.href = 'app.html';
+async function goToApp() {
+  const { data } = await sb.auth.getSession();
+  location.href = data.session ? 'app.html' : 'auth.html';
 }
 </script>
 </body>
