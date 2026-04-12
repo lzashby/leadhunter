@@ -227,7 +227,7 @@
 
     btn.disabled = true; btn.textContent = 'Creating account...';
 
-    const { data: signUpData, error: signUpError } = await sb.auth.signUp({ email, password, options: { data: { full_name: name }, emailRedirectTo: 'https://leadhunter-sage.vercel.app/app.html' } });
+    const { data: signUpData, error: signUpError } = await sb.auth.signUp({ email, password, options: { data: { full_name: name }, emailRedirectTo: 'https://leadhunter-sage.vercel.app/auth.html' } });
     if (signUpError) { showErr('signupError', signUpError.message); btn.disabled = false; btn.textContent = 'Create Free Account →'; return; }
 
     // Email confirmation required — no session returned
