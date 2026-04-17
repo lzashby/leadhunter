@@ -643,6 +643,9 @@
       <button class="btn-export" onclick="toggleSavedPanel()" title="View saved leads" style="position:relative;">
         ★ Saved <span id="savedCountBadge" style="display:none;background:var(--accent);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;margin-left:4px;">0</span>
       </button>
+      <button class="btn-export" id="saveAllBtn" onclick="saveAllLeads()" style="border-color:var(--accent);color:var(--accent2);">
+        ★ Save All
+      </button>
       <button class="btn-export" id="exportExcelBtn">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
         Export Excel
@@ -1276,6 +1279,43 @@ async function toggleSaveLead(btn, idx) {
     } catch (e) { console.error('Save lead exception:', e); }
   }
   updateSavedCount();
+}
+
+async function saveAllLeads() {
+  const leads = filteredLeads();
+  if (!leads.length) return;
+  const btn = document.getElementById('saveAllBtn');
+  btn.textContent = 'Saving...';
+  btn.disabled = true;
+
+  const { data: { session } } = await sb.auth.getSession();
+  let saved = 0;
+  for (const lead of leads) {
+    const key = lead.name + '|' + lead.address;
+    if (savedLeadIds.has(key)) continue;
+    savedLeadIds.add(key);
+    savedLeadsData.push(lead);
+    if (session) {
+      await sb.from('saved_leads').upsert({
+        user_id:     session.user.id,
+        biz_name:    lead.name,
+        biz_address: lead.address,
+        phone:       lead.phone || null,
+        email:       lead.email || null,
+        website:     lead.website || null,
+        rating:      lead.rating || null,
+        reviews:     lead.reviews || 0,
+        has_website: lead.hasWeb || false,
+        saved_at:    new Date().toISOString(),
+      }, { onConflict: 'user_id,biz_name,biz_address' });
+    }
+    saved++;
+  }
+  renderTable();
+  updateSavedCount();
+  btn.textContent = `★ Saved ${saved}`;
+  btn.disabled = false;
+  setTimeout(() => { btn.textContent = '★ Save All'; }, 2500);
 }
 
 function updateSavedCount() {
